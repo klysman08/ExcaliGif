@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- SEO Tags -->
+  <title>ExcaliGif - Animated GIF Support for Excalidraw</title>
+  <meta name="description" content="Add real-time animated GIF files to your Excalidraw whiteboard canvases with this lightweight, retro-styled browser extension.">
+  <meta name="keywords" content="Excalidraw, GIF, chrome extension, animation, canvas, whiteboard, pixel art">
+  
+  <!-- Style Link -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Navigation -->
+  <header class="container">
+    <nav class="navbar" id="main-nav" aria-label="Main Navigation">
+      <div class="logo">
+        <span class="logo-excali">Excali</span><span class="logo-gif">Gif</span>
+      </div>
+      <div class="nav-links">
+        <a href="#playground" class="nav-link">Demo Board</a>
+        <a href="#how-it-works" class="nav-link">Install Guide</a>
+        <a href="#technical" class="nav-link">How it Works</a>
+        <a href="#faq" class="nav-link">FAQ</a>
+      </div>
+      <a href="https://github.com/klysman08/ExcaliGif" target="_blank" class="nav-btn" id="github-link">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" style="display:inline; vertical-align:middle;">
+          <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+        </svg>
+        GITHUB CODE
+      </a>
+    </nav>
+  </header>
+
+  <!-- Hero Section -->
+  <main class="container">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-content">
+        <span class="pixel-badge" style="margin-bottom:15px;">v1.0.1 PREVIEW</span>
+        <h1 id="hero-title">Animate Your<br><span style="color:var(--color-primary)">Whiteboards</span></h1>
+        <p class="hero-subtitle">
+          Enables animated GIF files directly on the Excalidraw whiteboard canvas. Ditch static first-frame placeholders and bring your sketches to life.
+        </p>
+        <div class="hero-buttons">
+          <button class="btn-retro primary" id="installBtn" aria-label="Install Extension Button">
+            ⚡ INSTALL EXTENSION
+          </button>
+          <button class="btn-retro secondary" id="demoBtn" aria-label="Try Interactive Demo Button">
+            🎮 TRY LIVE DEMO
+          </button>
+        </div>
+        <p style="font-size:0.85rem; color:var(--color-text-muted);">
+          * 100% Free, Secure & Open Source. Integrates directly with React imageCache.
+        </p>
+      </div>
+      
+      <div class="hero-art-container">
+        <div class="pixel-monitor">
+          <div class="monitor-screen">
+            <div class="monitor-scanlines"></div>
+            <div class="pixel-art-canvas">
+              <div class="canvas-grid-bg"></div>
+              
+              <!-- Left: Static Excalidraw -->
+              <div class="drawing-excalidraw-box">
+                <span style="font-size: 1.5rem; display:block; margin: 5px 0;">🖼️</span>
+              </div>
+              
+              <!-- Arrow indicator -->
+              <div class="arrow-connection">➔</div>
+              
+              <!-- Right: Animating GIF with ExcaliGif -->
+              <div class="drawing-gif-box">
+                <span style="font-size: 1.5rem; display:block; margin: 5px 0; animation: float 1s infinite alternate;">🔥</span>
+              </div>
+              
+              <!-- Character Mascot -->
+              <div class="pixel-character">👾</div>
+            </div>
+          </div>
+          <div class="monitor-stand"></div>
+          <div class="monitor-base"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Interactive Demonstration Section -->
+    <section id="playground" class="pixel-card" aria-labelledby="playground-title">
+      <h2 id="playground-title">🕹️ Interactive Demonstration Board</h2>
+      <p style="margin-bottom: 25px;">
+        Interact with the simulated Excalidraw whiteboard. Turn the simulated extension **ON** and **OFF** in the popup dashboard to see the live rendering system freeze or loop.
+      </p>
+
+      <div class="playground-grid">
+        <!-- Live Board (Left) -->
+        <div class="playground-canvas-area">
+          <div class="canvas-toolbar">
+            <span class="toolbar-title">🎨 Excalidraw Simulated Canvas</span>
+            <button class="toolbar-btn" id="btnClearCanvas" title="Clear whiteboard elements">🧹 CLEAR BOARD</button>
+          </div>
+          
+          <div class="canvas-board" id="canvasBoard">
+            <div class="canvas-grid-bg"></div>
+            
+            <!-- Empty Canvas State -->
+            <div class="canvas-empty-state" id="canvasEmptyState">
+              <div class="empty-icon">📂</div>
+              <h3 class="empty-title">Whiteboard is Empty</h3>
+              <p class="empty-desc">Drag and drop a GIF onto the board, or click one of the preset pixel stickers below!</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Extension Popup Simulator (Right) -->
+        <div class="simulator-panel">
+          <div class="sim-phone-frame">
+            <div class="sim-popup-body">
+              <header class="sim-header">
+                <div class="sim-logo">
+                  <span class="sim-logo-bold">Excali</span><span class="sim-logo-light">Gif</span>
+                </div>
+                <div class="sim-version">v1.0.1</div>
+              </header>
+
+              <!-- Connection Status Banner -->
+              <div class="sim-status-banner connected" id="statusBanner">
+                <span class="sim-dot" id="statusDot"></span>
+                <span id="statusText">Excalidraw Connected</span>
+              </div>
+
+              <!-- Main Controller Card -->
+              <div class="sim-content">
+                <div class="sim-card">
+                  <div class="sim-row">
+                    <div>
+                      <h4 class="sim-title">GIF Animations</h4>
+                      <p class="sim-desc" style="margin:0;">Enable rendering loops for canvas GIFs</p>
+                    </div>
+                    <div>
+                      <label class="sim-switch">
+                        <input type="checkbox" id="gifToggle" checked>
+                        <span class="sim-slider"></span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Stats Dashboard -->
+                <div class="sim-stats">
+                  <div class="sim-stat-box">
+                    <div class="sim-stat-value" id="gifCount">0</div>
+                    <div class="sim-stat-label">Active GIFs</div>
+                  </div>
+                  <div class="sim-stat-box">
+                    <div class="sim-stat-value" id="engineStatus">Running</div>
+                    <div class="sim-stat-label">Engine Status</div>
+                  </div>
+                </div>
+
+                <!-- Sim tips box -->
+                <div class="sim-tips">
+                  <span style="font-size:1.1rem;">💡</span>
+                  <div style="font-size:0.7rem; line-height:1.3;">
+                    <b>How to use:</b> Drag and drop any <b>.gif</b> sticker directly onto Excalidraw. The extension decodes and injects loops automatically.
+                  </div>
+                </div>
+
+                <div class="sim-footer">
+                  <span>Antigravity Developer Preview</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Simulator Control Switcher -->
+          <div class="simulator-controls">
+            <button class="control-btn active" id="btnConnected" title="Connect extension state">CONNECTED</button>
+            <button class="control-btn" id="btnDisconnected" title="Disconnect extension state">DISCONNECTED</button>
+            <button class="control-btn" id="btnLoading" title="Simulate tab loading state">LOADING...</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Preset GIF Selector -->
+      <div class="sample-gifs-box">
+        <h3 class="sample-gifs-title">👾 Click to Spawn Pixel Stickers:</h3>
+        <div class="sample-list">
+          <div class="sample-item" id="sampleHeart" title="Click to spawn Heart sticker">
+            <img src="https://media.giphy.com/media/l41JWmZc75t24mPhC/giphy.gif" alt="Pixel Heart inline preview">
+            <div class="sample-name">Pixel Heart</div>
+          </div>
+          <div class="sample-item" id="sampleCoin" title="Click to spawn Coin sticker">
+            <img src="https://media.giphy.com/media/3o7bu3XilJ5BOESLqE/giphy.gif" alt="Retro Coin inline preview">
+            <div class="sample-name">Retro Coin</div>
+          </div>
+          <div class="sample-item" id="sampleGhost" title="Click to spawn Ghost sticker">
+            <img src="https://media.giphy.com/media/26AHG5K4UPwthNYic/giphy.gif" alt="Mini Ghost inline preview">
+            <div class="sample-name">Mini Ghost</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Installation Steps Section -->
+    <section id="how-it-works" class="pixel-card" aria-labelledby="steps-title">
+      <h2 id="steps-title">🔧 Loading Extension Unpacked</h2>
+      <p style="margin-bottom: 40px;">
+        Since the project is hosted publicly on GitHub, follow these quick retro steps to run it locally in Chrome:
+      </p>
+
+      <div class="steps-container">
+        <!-- Step 1 -->
+        <div class="step-card">
+          <div class="step-number">01</div>
+          <h3 class="step-title">Get Files</h3>
+          <p class="step-desc">
+            Download the source code archive from the GitHub repository and extract the files to a folder on your computer.
+          </p>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="step-card">
+          <div class="step-number">02</div>
+          <h3 class="step-title">Developer Mode</h3>
+          <p class="step-desc">
+            Open Chrome, navigate to <code style="background-color:var(--color-bg); padding:2px 4px;">chrome://extensions</code>, and toggle <b>Developer Mode</b> ON in the top-right.
+          </p>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="step-card">
+          <div class="step-number">03</div>
+          <h3 class="step-title">Load Folder</h3>
+          <p class="step-desc">
+            Click <b>Load Unpacked</b> and choose the extracted root folder. Open Excalidraw and start adding animated GIFs!
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Technical Architecture Section -->
+    <section id="technical" class="tech-section" aria-labelledby="tech-title">
+      <!-- Info Card -->
+      <div class="pixel-card" style="margin-bottom: 0;">
+        <h2 id="tech-title">🧬 Hooking React Fiber</h2>
+        <p>
+          Unlike standard canvas extensions that paste overlays, ExcaliGif works natively with **Excalidraw's core rendering pipeline**:
+        </p>
+        <ul style="margin-left: 20px; margin-bottom: 15px; display:flex; flex-direction:column; gap:10px;">
+          <li><b>DOM Traversal:</b> Resolves react nodes by searching `.excalidraw__canvas.interactive` for key attributes.</li>
+          <li><b>Image Cache Overriding:</b> Hijacks `app.imageCache.set` so that incoming GIF assets swap static image references.</li>
+          <li><b>Omggif Decoder:</b> Computes disposal formats (e.g., restore to background or previous frames) to draw precise frame frames.</li>
+          <li><b>Immutable Versioning:</b> Forces canvas redraws by incrementing version hashes directly in Excalidraw scene arrays.</li>
+        </ul>
+        <span class="pixel-badge success">Zero Dependencies</span>
+        <span class="pixel-badge" style="background:#5B88A5; color:white;">React Native Pipeline</span>
+      </div>
+
+      <!-- Code Snippet Mockup -->
+      <div class="code-window">
+        <div class="code-header">
+          <div class="code-dot"></div>
+          <div class="code-dot"></div>
+          <div class="code-dot"></div>
+          <span class="code-title">inject.js</span>
+        </div>
+        <div class="code-content">
+          <pre><code><span class="code-comment">// Intercept Excalidraw cache</span>
+<span class="code-keyword">const</span> originalSet = imageCache.set;
+imageCache.set = <span class="code-keyword">function</span>(fileId, cacheEntry) {
+  <span class="code-keyword">const</span> res = originalSet.apply(<span class="code-keyword">this</span>, arguments);
+  <span class="code-keyword">if</span> (cacheEntry.mimeType === <span class="code-string">'image/gif'</span>) {
+    <span class="code-keyword">if</span> (!activeGifs.has(fileId)) {
+      <span class="code-comment">// Decode & animate via canvas</span>
+      activeGifs.set(fileId, <span class="code-keyword">new</span> <span class="code-function">GifPlayer</span>(
+        fileId, cacheEntry, app
+      ));
+    }
+  }
+  <span class="code-keyword">return</span> res;
+};</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section id="faq" style="margin-top: 50px;" aria-labelledby="faq-title">
+      <h2 class="section-title" id="faq-title">❓ Frequently Asked Questions</h2>
+      
+      <div class="faq-list">
+        <div class="faq-item" tabindex="0">
+          <h3 class="faq-question">Does this work on custom Excalidraw instances?</h3>
+          <div class="faq-answer">
+            Currently, the content script matches `https://excalidraw.com/*`. To run on self-hosted instances of Excalidraw, you can easily modify the matches array in the `manifest.json` file to include your custom domain name.
+          </div>
+        </div>
+
+        <div class="faq-item" tabindex="0">
+          <h3 class="faq-question">Will the exported SVG/PNG contain animations?</h3>
+          <div class="faq-answer">
+            No, the standard Excalidraw exporter saves drawings as standard SVG code or static PNG images. The GIFs will play dynamically on your active blackboard canvas, but exports will capture the static frame.
+          </div>
+        </div>
+
+        <div class="faq-item" tabindex="0">
+          <h3 class="faq-question">How does performance hold up with multiple GIFs?</h3>
+          <div class="faq-answer">
+            ExcaliGif optimizes memory by managing a single rendering tick per GIF element and running decoding once. If you load dozens of highly detailed GIFs, you can use the Extension Toggle Switch to pause the rendering loop and save CPU power instantly.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="main-footer">
+    <div class="container">
+      <div class="footer-logo">
+        <span class="logo-excali">Excali</span><span style="color:var(--color-primary)">Gif</span> 👾
+      </div>
+      <p class="footer-copy">
+        Created by klysman08. Made with Antigravity AI pair programming. MIT Licensed.
+      </p>
+    </div>
+  </footer>
+
+  <!-- App Logic Module Script -->
+  <script type="module" src="app.js"></script>
+</body>
+</html>
