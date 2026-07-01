@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ExcaliGif Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="dashboard">
+    <!-- Header -->
+    <header class="header">
+      <div class="logo">
+        <span class="logo-bold">Excali</span><span class="logo-light">Gif</span>
+        <span class="pulse-dot"></span>
+      </div>
+      <div class="version">v1.0.0</div>
+    </header>
+
+    <!-- Connection Status Banner -->
+    <div class="status-banner" id="statusBanner">
+      <span class="status-indicator-dot" id="statusDot"></span>
+      <span class="status-text" id="statusText">Connecting...</span>
+    </div>
+
+    <!-- Main Card -->
+    <div class="card">
+      <div class="card-row">
+        <div class="card-label-group">
+          <div class="card-title">GIF Animations</div>
+          <div class="card-desc">Enable rendering loops for canvas GIFs</div>
+        </div>
+        <div class="toggle-container">
+          <label class="switch">
+            <input type="checkbox" id="gifToggle" checked disabled>
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats Panel -->
+    <div class="stats-panel">
+      <div class="stat-item">
+        <div class="stat-value" id="gifCount">0</div>
+        <div class="stat-label">Active GIFs</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value" id="engineStatus">-</div>
+        <div class="stat-label">Engine Status</div>
+      </div>
+    </div>
+
+    <!-- Tips -->
+    <div class="tips-box">
+      <div class="tips-title">💡 How to use</div>
+      <p class="tips-text">Simply drag and drop or import any animated <b>.gif</b> file directly onto your Excalidraw canvas. The extension will automatically take care of the rest!</p>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <span>Antigravity pair-programming</span>
+    </footer>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>
