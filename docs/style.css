@@ -35,6 +35,24 @@
   --pixel-shadow-active: 2px 2px 0px var(--color-shadow);
 }
 
+body.dark-mode {
+  --color-bg: #1A1918;
+  --color-card-bg: #232221;
+  --color-border: #FAF6EE;
+  --color-shadow: #000000;
+  
+  --color-primary: #E87D69;
+  --color-primary-dark: #F29A88;
+  --color-secondary: #F3C268;
+  --color-secondary-dark: #FAD184;
+  --color-success: #6CA397;
+  --color-success-dark: #81B8AC;
+  
+  --color-text-main: #FAF6EE;
+  --color-text-muted: #AA9F94;
+  --color-grid-line: #2D2B2A;
+}
+
 /* Reset and Global Styles */
 * {
   box-sizing: border-box;
@@ -193,6 +211,16 @@ a:hover {
 .nav-btn:active {
   transform: translate(1px, 1px);
   box-shadow: 1px 1px 0px var(--color-shadow);
+}
+
+.nav-btn.secondary {
+  background-color: var(--color-secondary);
+  color: var(--color-text-main);
+}
+
+.nav-btn.secondary:hover {
+  background-color: var(--color-secondary-dark);
+  color: var(--color-text-main);
 }
 
 /* Pixel Card / Panel */
@@ -364,7 +392,7 @@ a:hover {
 /* SVG or CSS Drawings */
 .drawing-excalidraw-box {
   border: 3px solid var(--color-border);
-  background-color: white;
+  background-color: var(--color-card-bg);
   width: 150px;
   height: 100px;
   position: absolute;
@@ -395,7 +423,7 @@ a:hover {
 
 .drawing-gif-box {
   border: 3px dashed var(--color-primary);
-  background-color: white;
+  background-color: var(--color-card-bg);
   width: 150px;
   height: 100px;
   position: absolute;
@@ -468,7 +496,7 @@ a:hover {
 }
 
 .playground-canvas-area {
-  background-color: #FCF9F3;
+  background-color: var(--color-bg);
   border: var(--pixel-border);
   position: relative;
   min-height: 400px;
@@ -508,8 +536,8 @@ a:hover {
 .canvas-board {
   flex-grow: 1;
   position: relative;
-  background-color: #FFFFFF;
-  background-image: radial-gradient(#D3CDC1 1px, transparent 1px);
+  background-color: var(--color-card-bg);
+  background-image: radial-gradient(var(--color-grid-line) 2px, transparent 2px);
   background-size: 18px 18px;
   display: flex;
   justify-content: center;
@@ -604,7 +632,7 @@ a:hover {
 }
 
 .sim-popup-body {
-  background-color: white;
+  background-color: var(--color-card-bg);
   border: 3px solid var(--color-border);
   font-family: var(--font-body);
   display: flex;
@@ -614,7 +642,7 @@ a:hover {
 }
 
 .sim-header {
-  background-color: #FFFFFF;
+  background-color: var(--color-card-bg);
   border-bottom: 2px solid var(--color-border);
   padding: 10px 15px;
   display: flex;
@@ -708,7 +736,7 @@ a:hover {
   border: 2px solid var(--color-border);
   box-shadow: 2px 2px 0px var(--color-border);
   padding: 10px 12px;
-  background-color: white;
+  background-color: var(--color-card-bg);
 }
 
 .sim-row {
@@ -786,7 +814,7 @@ input:disabled + .sim-slider {
 
 .sim-stat-box {
   border: 2px solid var(--color-border);
-  background-color: #FAF8F5;
+  background-color: var(--color-bg);
   padding: 8px;
   text-align: center;
   box-shadow: 2px 2px 0 var(--color-border);
@@ -809,7 +837,7 @@ input:disabled + .sim-slider {
 /* Tips */
 .sim-tips {
   border: 2px solid var(--color-border);
-  background-color: #FFFDF9;
+  background-color: var(--color-bg);
   padding: 8px;
   font-size: 0.75rem;
   display: flex;
@@ -913,7 +941,7 @@ input:disabled + .sim-slider {
 
 .step-card {
   text-align: center;
-  background: white;
+  background-color: var(--color-card-bg);
   border: var(--pixel-border);
   box-shadow: var(--pixel-shadow);
   padding: 25px;
@@ -1007,7 +1035,7 @@ input:disabled + .sim-slider {
 
 .faq-item {
   border: var(--pixel-border);
-  background-color: white;
+  background-color: var(--color-card-bg);
   padding: 15px 20px;
   cursor: pointer;
   position: relative;

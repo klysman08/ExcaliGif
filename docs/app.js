@@ -56,6 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const installBtn = document.getElementById('installBtn');
   const demoBtn = document.getElementById('demoBtn');
+  const themeToggle = document.getElementById('theme-toggle');
 
   // SOUND HOOKS FOR STANDARD INTERACTION
   const addSoundHooks = () => {
@@ -66,6 +67,29 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   };
+
+  // THEME TOGGLE (DARK / LIGHT MODE)
+  const initTheme = () => {
+    const savedTheme = localStorage.getItem('theme');
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    
+    if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
+      document.body.classList.add('dark-mode');
+      themeToggle.textContent = "☀️ LIGHT MODE";
+    } else {
+      document.body.classList.remove('dark-mode');
+      themeToggle.textContent = "🌙 DARK MODE";
+    }
+  };
+
+  themeToggle.addEventListener('click', () => {
+    const isDark = document.body.classList.toggle('dark-mode');
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    themeToggle.textContent = isDark ? "☀️ LIGHT MODE" : "🌙 DARK MODE";
+    playToggle(isDark);
+  });
+
+  initTheme();
 
   // Update simulator UI based on state variables
   const updateSimulatorUI = () => {
@@ -285,17 +309,17 @@ document.addEventListener('DOMContentLoaded', () => {
   // Select item samples triggers
   sampleHeart.addEventListener('click', () => {
     // Adding a nice pixel heart GIF
-    const gifUrl = "https://media.giphy.com/media/l41JWmZc75t24mPhC/giphy.gif"; // Reliable retro heart
+    const gifUrl = "https://static.klipy.com/ii/f87f46a2c5aeaeed4c68910815f73eaf/b2/8e/ubnyCmzy.gif"; // Reliable retro heart
     addGifToBoard(gifUrl, "Heart Pixel", 120, 100);
   });
 
   sampleCoin.addEventListener('click', () => {
-    const gifUrl = "https://media.giphy.com/media/3o7bu3XilJ5BOESLqE/giphy.gif"; // Spinning coin
+    const gifUrl = "https://static.klipy.com/ii/71b2873e478b9d8d0482ea3ec777ba7f/15/36/izQlaTmV.gif"; // Spinning coin
     addGifToBoard(gifUrl, "Coin Spin", 260, 150);
   });
 
   sampleGhost.addEventListener('click', () => {
-    const gifUrl = "https://media.giphy.com/media/26AHG5K4UPwthNYic/giphy.gif"; // Pacman ghost
+    const gifUrl = "https://static.klipy.com/ii/4493325008d34b7bf8cd6813cd5c1619/87/ad/71WOMbwke67fmBx.gif"; // Pacman ghost
     addGifToBoard(gifUrl, "Ghost Pixel", 180, 80);
   });
 

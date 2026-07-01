@@ -45,6 +45,12 @@ To experience a simulator of this extension and play around with retro sound eff
 
 ---
 
+## 🌌 Sister Project: AstroFocus GIFs
+
+Need a steady source of animated pixel art or sprites to add to your Excalidraw board? Check out our sister project [AstroFocus GIFs](https://gifs.astrofocus.app/) — a curated search engine and library of high-quality pixel-art animations, sprites, and transparent loops!
+
+---
+
 ## 📄 License
 
 This project is licensed under the MIT License.
