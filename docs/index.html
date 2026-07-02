@@ -41,7 +41,7 @@
   <main class="container">
     <section class="hero" aria-labelledby="hero-title">
       <div class="hero-content">
-        <span class="pixel-badge" style="margin-bottom:15px;">v1.0.1 PREVIEW</span>
+        <span class="pixel-badge" style="margin-bottom:15px;">v2.0.0 RELEASE</span>
         <h1 id="hero-title">Animate Your<br><span style="color:var(--color-primary)">Whiteboards</span></h1>
         <p class="hero-subtitle">
           Enables animated GIF files directly on the Excalidraw whiteboard canvas. Ditch static first-frame placeholders and bring your sketches to life.
@@ -111,7 +111,41 @@
             <div class="canvas-empty-state" id="canvasEmptyState">
               <div class="empty-icon">📂</div>
               <h3 class="empty-title">Whiteboard is Empty</h3>
-              <p class="empty-desc">Drag and drop a GIF onto the board, or click one of the preset pixel stickers below!</p>
+              <p class="empty-desc">Spawn vector elements, drag and drop a GIF onto the board, or click preset stickers below!</p>
+            </div>
+            
+            <!-- Simulated Canvas Floating Toolbar -->
+            <div class="sim-floating-toolbar" id="simFloatingToolbar">
+              <!-- Collapsible Settings Panel -->
+              <div class="sim-toolbar-panel" id="simToolbarPanel">
+                <div class="sim-panel-row">
+                  <span>Speed</span>
+                  <div class="sim-pill-group" id="simSpeedPills">
+                    <button class="active" data-val="slow">Slow</button>
+                    <button data-val="medium">Med</button>
+                    <button data-val="fast">Fast</button>
+                  </div>
+                </div>
+                <div class="sim-panel-row">
+                  <span>Direction</span>
+                  <div class="sim-pill-group" id="simDirPills">
+                    <button class="active" data-val="forward">→ Fwd</button>
+                    <button data-val="reverse">← Rev</button>
+                    <button data-val="bounce">↔ Bnc</button>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Main Toolbar Bar -->
+              <div class="sim-toolbar-main">
+                <div class="sim-toolbar-label">Excali<span>Gif</span></div>
+                <div class="sim-toolbar-divider"></div>
+                <button class="sim-toolbar-btn active" data-style="particles" title="Particles style">● Particles</button>
+                <button class="sim-toolbar-btn" data-style="dashes" title="Marching Ants style">⋯ Ants</button>
+                <div class="sim-toolbar-divider"></div>
+                <button class="sim-toolbar-btn gear" id="simGearBtn" title="Tune Settings">⚙️</button>
+                <button class="sim-toolbar-btn remove" id="simRemoveBtn" title="Remove animation">✕</button>
+              </div>
             </div>
           </div>
         </div>
@@ -124,7 +158,7 @@
                 <div class="sim-logo">
                   <span class="sim-logo-bold">Excali</span><span class="sim-logo-light">Gif</span>
                 </div>
-                <div class="sim-version">v1.0.1</div>
+                <div class="sim-version">v2.0.0</div>
               </header>
 
               <!-- Connection Status Banner -->
@@ -150,48 +184,21 @@
                   </div>
                 </div>
 
-                <!-- Flow Animations Card -->
-                <div class="sim-card">
-                  <div class="sim-row">
-                    <div>
-                      <h4 class="sim-title">Line & Arrow Flow</h4>
-                      <p class="sim-desc" style="margin:0;">Animate information flow along paths</p>
-                    </div>
-                    <div>
-                      <label class="sim-switch">
-                        <input type="checkbox" id="flowToggle" checked>
-                        <span class="sim-slider"></span>
-                      </label>
-                    </div>
-                  </div>
-                  <div class="flow-settings-group" id="flowSettingsGroup" style="margin-top: 10px; display: flex; flex-direction: column; gap: 8px; border-top: 1px solid var(--card-border); padding-top: 10px;">
-                    <div class="settings-row" style="display: flex; justify-content: space-between; align-items: center;">
-                      <span style="font-size: 10px; color: var(--text-muted); font-weight: 500;">Flow Style</span>
-                      <select id="flowStyle" class="sim-select" style="font-size: 10px; padding: 3px 6px;">
-                        <option value="particles">Particles</option>
-                        <option value="dashes">Marching Ants</option>
-                      </select>
-                    </div>
-                    <div class="settings-row" style="display: flex; justify-content: space-between; align-items: center;">
-                      <span style="font-size: 10px; color: var(--text-muted); font-weight: 500;">Flow Speed</span>
-                      <select id="flowSpeed" class="sim-select" style="font-size: 10px; padding: 3px 6px;">
-                        <option value="slow">Slow</option>
-                        <option value="medium" selected>Medium</option>
-                        <option value="fast">Fast</option>
-                      </select>
-                    </div>
-                  </div>
                 </div>
 
                 <!-- Stats Dashboard -->
-                <div class="sim-stats">
+                <div class="sim-stats" style="grid-template-columns: 1fr 1fr 1fr;">
                   <div class="sim-stat-box">
                     <div class="sim-stat-value" id="gifCount">0</div>
                     <div class="sim-stat-label">Active GIFs</div>
                   </div>
                   <div class="sim-stat-box">
+                    <div class="sim-stat-value" id="animatedCount">0</div>
+                    <div class="sim-stat-label">Lines</div>
+                  </div>
+                  <div class="sim-stat-box">
                     <div class="sim-stat-value" id="engineStatus">Running</div>
-                    <div class="sim-stat-label">Engine Status</div>
+                    <div class="sim-stat-label">Status</div>
                   </div>
                 </div>
 

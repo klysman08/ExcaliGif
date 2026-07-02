@@ -8,11 +8,11 @@
   --color-border: #2D2B2A;
   --color-shadow: #2D2B2A;
   
-  /* Primary Warm Accents */
-  --color-primary: #E06C53;      /* Terracotta/Rust */
-  --color-primary-dark: #C25039;
-  --color-secondary: #EBB85A;    /* Burnt Gold */
-  --color-secondary-dark: #D4A042;
+  /* Primary Brand Purple/Lavender Accents */
+  --color-primary: #8C5ADC;      /* Purple Accent */
+  --color-primary-dark: #7642C0;
+  --color-secondary: #D2B4FF;    /* Lavender Accent */
+  --color-secondary-dark: #BA94EB;
   --color-success: #598379;      /* Sage Green */
   --color-success-dark: #46675E;
   --color-info: #5B88A5;         /* Muted Slate Blue */
@@ -41,10 +41,10 @@ body.dark-mode {
   --color-border: #FAF6EE;
   --color-shadow: #000000;
   
-  --color-primary: #E87D69;
-  --color-primary-dark: #F29A88;
-  --color-secondary: #F3C268;
-  --color-secondary-dark: #FAD184;
+  --color-primary: #B18CFF;
+  --color-primary-dark: #D2B4FF;
+  --color-secondary: #E9D8FF;
+  --color-secondary-dark: #FAF4FF;
   --color-success: #6CA397;
   --color-success-dark: #81B8AC;
   
@@ -146,6 +146,8 @@ a:hover {
   justify-content: space-between;
   align-items: center;
   position: relative;
+  flex-wrap: wrap;
+  gap: 15px;
 }
 
 .logo {
@@ -1143,4 +1145,183 @@ input:disabled + .sim-slider {
     stroke-dashoffset: -16;
   }
 }
+
+/* Simulated Canvas-level Floating Toolbar styling */
+.sim-floating-toolbar {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-body);
+  user-select: none;
+  width: 90%;
+  max-width: 320px;
+}
+
+.sim-floating-toolbar.visible {
+  display: flex;
+  animation: simFadeIn 0.2s ease-out;
+}
+
+@keyframes simFadeIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(8px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+.sim-toolbar-panel {
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--color-card-bg);
+  border: 3px solid var(--color-border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  box-shadow: 3px 3px 0 var(--color-shadow);
+  width: 100%;
+}
+
+.sim-toolbar-panel.visible {
+  display: flex;
+}
+
+.sim-panel-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.sim-panel-row > span {
+  font-size: 0.65rem;
+  color: var(--color-text-muted);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  width: 55px;
+}
+
+.sim-pill-group {
+  display: flex;
+  background: var(--color-bg);
+  border: 2px solid var(--color-border);
+  border-radius: 6px;
+  padding: 1px;
+  flex: 1;
+  justify-content: space-between;
+}
+
+.sim-pill-group button {
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  font-family: inherit;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 4px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.1s ease;
+  outline: none;
+  flex: 1;
+  text-align: center;
+}
+
+.sim-pill-group button:hover {
+  color: var(--color-text-main);
+}
+
+.sim-pill-group button.active {
+  background: var(--color-primary);
+  color: white;
+}
+
+.sim-toolbar-main {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background: var(--color-card-bg);
+  border: 3px solid var(--color-border);
+  border-radius: 8px;
+  padding: 4px 6px;
+  box-shadow: 3px 3px 0 var(--color-shadow);
+  width: 100%;
+  justify-content: space-between;
+}
+
+.sim-toolbar-label {
+  font-family: var(--font-retro);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-text-main);
+  white-space: nowrap;
+}
+
+.sim-toolbar-label span {
+  color: var(--color-primary);
+}
+
+.sim-toolbar-divider {
+  width: 2px;
+  height: 14px;
+  background: var(--color-border);
+  margin: 0 2px;
+}
+
+.sim-toolbar-btn {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 6px;
+  border: 1px solid transparent;
+  background: none;
+  color: var(--color-text-muted);
+  font-family: inherit;
+  font-size: 0.65rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.1s ease;
+  white-space: nowrap;
+  outline: none;
+}
+
+.sim-toolbar-btn:hover {
+  color: var(--color-primary);
+}
+
+.sim-toolbar-btn.active {
+  background: var(--color-primary);
+  color: white;
+  border-radius: 4px;
+}
+
+.sim-toolbar-btn.gear.active {
+  background: var(--color-secondary);
+  color: var(--color-text-main);
+  border-radius: 4px;
+}
+
+.sim-toolbar-btn.remove:hover {
+  color: var(--color-primary);
+}
+
+/* Extra media queries for responsive layout header links */
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    padding: 15px;
+    align-items: center;
+  }
+  .nav-links {
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+}
+
 

@@ -7,7 +7,8 @@ COLOR_MAP = {
     '.': (0, 0, 0, 0),         # Transparent
     'k': (45, 43, 42, 255),    # Charcoal (#2D2B2A)
     'w': (255, 255, 255, 255),  # White
-    'r': (224, 108, 83, 255),  # Terracotta (#E06C53)
+    'p': (140, 90, 220, 255),  # Accent Purple (#8C5ADC)
+    'l': (210, 180, 255, 255),  # Light Purple Glow (#D2B4FF)
     'y': (235, 184, 90, 255),  # Gold (#EBB85A)
     's': (226, 219, 208, 255)  # Muted Grey Screen Border (#E2DBD0)
 }
@@ -17,13 +18,13 @@ GRID_16 = [
     ". . . k k k k k k k k k k . . .",
     ". . k k w w w w w w w w k k . .",
     ". k k w w w w w w w w w w k k .",
-    ". k w w w r r w w w w w w w k .",
-    ". k w w w r r r w w w w w w k .",
-    ". k w w w r r r r w w y y w k .",
-    ". k w w w r r r r r w y y w k .",
-    ". k w w w r r r r w w w w w k .",
-    ". k w w w r r r w w w w w w k .",
-    ". k w w w r r w w w w w w w k .",
+    ". k w w w p p w w w l w w w k .",
+    ". k w w w p p p w w w w w w k .",
+    ". k w w w p p p p w w y y w k .",
+    ". k w w w p p p p p w y y w k .",
+    ". k w w w p p p p w w w w w k .",
+    ". k w w w p p p w w w w w w k .",
+    ". k w w w p p w w w l w w w k .",
     ". k w w w w w w w w w w w w k .",
     ". k k s s s s s s s s s s k k .",
     ". . k k k k k k k k k k k k . .",
