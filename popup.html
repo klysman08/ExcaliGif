@@ -58,7 +58,7 @@
       <div class="card-row">
         <div class="card-label-group">
           <div class="card-title">Line & Arrow Flow</div>
-          <div class="card-desc">Animate information flow along paths</div>
+          <div class="card-desc">Select an arrow or line, then assign an animation from the toolbar</div>
         </div>
         <div class="toggle-container">
           <label class="switch">
@@ -68,17 +68,6 @@
         </div>
       </div>
       <div class="flow-settings-group" id="flowSettingsGroup">
-        <div class="settings-row">
-          <span>Flow Style</span>
-          <select id="flowStyle">
-            <option value="particles">Particles</option>
-            <option value="dashes">Marching Ants</option>
-            <option value="gradient">Gradient Pulse</option>
-            <option value="ripple">Ripple Wave</option>
-            <option value="train">Packet Train</option>
-            <option value="snake">Snake Trail</option>
-          </select>
-        </div>
         <div class="settings-row">
           <span>Flow Speed</span>
           <select id="flowSpeed">
@@ -138,6 +127,10 @@
         <div class="stat-label">Active GIFs</div>
       </div>
       <div class="stat-item">
+        <div class="stat-value" id="animatedCount">0</div>
+        <div class="stat-label">Animated Lines</div>
+      </div>
+      <div class="stat-item">
         <div class="stat-value" id="engineStatus">-</div>
         <div class="stat-label">Engine Status</div>
       </div>
@@ -146,7 +139,7 @@
     <!-- Tips -->
     <div class="tips-box">
       <div class="tips-title">💡 How to use</div>
-      <p class="tips-text">Simply drag and drop or import any animated <b>.gif</b> file directly onto your Excalidraw canvas. The extension will automatically take care of the rest!</p>
+      <p class="tips-text">Drag a <b>.gif</b> onto Excalidraw for auto-playback. Select an <b>arrow</b> or <b>line</b> to reveal the animation toolbar — pick a style to bring your diagrams to life!</p>
     </div>
 
     <!-- Footer -->

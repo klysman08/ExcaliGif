@@ -23,6 +23,34 @@
   let overlayAnimationFrameId = null;
   let flowOffset = 0;
 
+  // Per-element animation assignments: elementId -> { style: string }
+  const animatedElements = new Map();
+  let toolbarElement = null;
+  let lastSelectedId = null;
+
+  // Load animated elements from localStorage
+  try {
+    const saved = localStorage.getItem('excaligif_animated_elements');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      for (const [id, config] of Object.entries(parsed)) {
+        animatedElements.set(id, config);
+      }
+    }
+  } catch (e) {
+    console.error("[ExcaliGif] Error loading animated elements:", e);
+  }
+
+  function saveAnimatedElements() {
+    try {
+      const obj = {};
+      for (const [id, config] of animatedElements.entries()) {
+        obj[id] = config;
+      }
+      localStorage.setItem('excaligif_animated_elements', JSON.stringify(obj));
+    } catch (e) {}
+  }
+
   // Load settings from localStorage if available
   try {
     const saved = localStorage.getItem('excaligif_settings');
@@ -308,6 +336,17 @@
         activeGifs.delete(fileId);
       }
     }
+    
+    // Clean up animated element entries for deleted elements
+    const sceneIds = new Set(elements.filter(e => !e.isDeleted).map(e => e.id));
+    let cleaned = false;
+    for (const elId of animatedElements.keys()) {
+      if (!sceneIds.has(elId)) {
+        animatedElements.delete(elId);
+        cleaned = true;
+      }
+    }
+    if (cleaned) saveAnimatedElements();
   }
 
   function checkInstance() {
@@ -317,8 +356,11 @@
       currentApp = app;
       hookImageCache(app);
       
-      // Start flow overlay loop if enabled on startup
-      if (isEnabled && currentSettings.flowEnabled) {
+      // Create the in-canvas animation toolbar
+      createToolbar();
+      
+      // Start flow overlay loop if enabled and there are animated elements
+      if (isEnabled && currentSettings.flowEnabled && animatedElements.size > 0) {
         startOverlayLoop();
       }
     }
@@ -326,32 +368,10 @@
   }
 
   // Helper functions for path and flow animations
-  function shouldAnimateElement(el, allElements) {
+  function shouldAnimateElement(el) {
     if (el.isDeleted) return false;
-    if (el.type !== 'arrow' && el.type !== 'line') return false;
-    if (!el.points || el.points.length < 2) return false;
-    
-    // Dash / Dotted style triggers flow automatically
-    if (el.strokeStyle === 'dashed' || el.strokeStyle === 'dotted') {
-      return true;
-    }
-    
-    // Label triggers flow: checks if arrow text contains '>>', '[flow]', 'flow', '~>'
-    if (el.boundElements) {
-      for (const bound of el.boundElements) {
-        if (bound.type === 'text') {
-          const textEl = allElements.find(e => e.id === bound.id && !e.isDeleted);
-          if (textEl && textEl.text) {
-            const lowerText = textEl.text.toLowerCase();
-            if (lowerText.includes('>>') || lowerText.includes('[flow]') || lowerText.includes('flow') || lowerText.includes('~>')) {
-              return true;
-            }
-          }
-        }
-      }
-    }
-    
-    return false;
+    // Only animate elements explicitly assigned via the in-canvas toolbar
+    return animatedElements.has(el.id);
   }
 
   function getPathPoints(el) {
@@ -546,12 +566,13 @@
     }
     
     for (const el of elements) {
-      if (shouldAnimateElement(el, elements)) {
+      if (shouldAnimateElement(el)) {
         const absPoints = getPathPoints(el);
         const geometry = getPathGeometry(absPoints);
         
         if (geometry.totalLength > 0) {
-          const style = currentSettings.flowStyle || 'particles';
+          const elConfig = animatedElements.get(el.id);
+          const style = elConfig ? elConfig.style : 'particles';
           switch (style) {
             case 'particles':
               drawParticles(ctx, el, geometry, offset);
@@ -879,8 +900,269 @@
     ctx.restore();
   }
 
+  // ═══════════════════════════════════════════════
+  // IN-CANVAS FLOATING TOOLBAR
+  // ═══════════════════════════════════════════════
+
+  const ANIMATION_STYLES = [
+    { id: 'particles', label: 'Particles', icon: '●' },
+    { id: 'dashes', label: 'Ants', icon: '⋯' },
+    { id: 'gradient', label: 'Pulse', icon: '◐' },
+    { id: 'ripple', label: 'Ripple', icon: '◎' },
+    { id: 'train', label: 'Packet', icon: '▸▸' },
+    { id: 'snake', label: 'Snake', icon: '∿' },
+  ];
+
+  function injectToolbarStyles() {
+    if (document.getElementById('excaligif-toolbar-styles')) return;
+
+    // Load Outfit font if not already available
+    if (!document.querySelector('link[href*="Outfit"]')) {
+      const fontLink = document.createElement('link');
+      fontLink.rel = 'stylesheet';
+      fontLink.href = 'https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap';
+      document.head.appendChild(fontLink);
+    }
+
+    const style = document.createElement('style');
+    style.id = 'excaligif-toolbar-styles';
+    style.textContent = `
+      .excaligif-toolbar {
+        position: fixed;
+        bottom: 24px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 10000;
+        display: none;
+        align-items: center;
+        gap: 3px;
+        background: rgba(18, 18, 26, 0.92);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(140, 90, 220, 0.25);
+        border-radius: 14px;
+        padding: 5px 8px;
+        font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.45), 0 0 16px rgba(140, 90, 220, 0.08);
+        user-select: none;
+      }
+      .excaligif-toolbar.visible {
+        display: flex;
+        animation: excaligif-fadeIn 0.2s ease-out;
+      }
+      @keyframes excaligif-fadeIn {
+        from { opacity: 0; transform: translateX(-50%) translateY(8px); }
+        to { opacity: 1; transform: translateX(-50%) translateY(0); }
+      }
+      .excaligif-toolbar-label {
+        font-size: 11px;
+        font-weight: 700;
+        color: rgba(255,255,255,0.92);
+        padding: 0 6px 0 4px;
+        letter-spacing: -0.3px;
+        white-space: nowrap;
+      }
+      .excaligif-toolbar-label span {
+        color: hsl(270, 75%, 64%);
+        text-shadow: 0 0 8px hsla(270, 75%, 64%, 0.3);
+      }
+      .excaligif-toolbar-divider {
+        width: 1px;
+        height: 20px;
+        background: rgba(255,255,255,0.1);
+        margin: 0 3px;
+      }
+      .excaligif-toolbar-btn {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        padding: 5px 10px;
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 10px;
+        background: rgba(255,255,255,0.04);
+        color: rgba(255,255,255,0.6);
+        font-family: inherit;
+        font-size: 11px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.18s ease;
+        white-space: nowrap;
+        outline: none;
+      }
+      .excaligif-toolbar-btn:hover {
+        background: rgba(140, 90, 220, 0.15);
+        border-color: rgba(140, 90, 220, 0.3);
+        color: rgba(255,255,255,0.9);
+      }
+      .excaligif-toolbar-btn.active {
+        background: hsl(270, 75%, 64%);
+        border-color: hsl(270, 75%, 64%);
+        color: #fff;
+        box-shadow: 0 0 12px hsla(270, 75%, 64%, 0.35);
+        font-weight: 600;
+      }
+      .excaligif-toolbar-btn.active:hover {
+        background: hsl(270, 75%, 58%);
+      }
+      .excaligif-toolbar-btn.remove {
+        color: rgba(255,255,255,0.35);
+        padding: 5px 8px;
+        margin-left: 1px;
+      }
+      .excaligif-toolbar-btn.remove:hover {
+        background: rgba(220, 60, 60, 0.2);
+        border-color: rgba(220, 60, 60, 0.35);
+        color: hsl(0, 80%, 65%);
+      }
+      .excaligif-toolbar-icon {
+        font-size: 12px;
+        line-height: 1;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  function createToolbar() {
+    if (toolbarElement) return;
+    injectToolbarStyles();
+
+    const toolbar = document.createElement('div');
+    toolbar.className = 'excaligif-toolbar';
+    toolbar.id = 'excaligif-toolbar';
+
+    // Logo label
+    const label = document.createElement('div');
+    label.className = 'excaligif-toolbar-label';
+    label.innerHTML = 'Excali<span>Gif</span>';
+    toolbar.appendChild(label);
+
+    // Divider
+    const div1 = document.createElement('div');
+    div1.className = 'excaligif-toolbar-divider';
+    toolbar.appendChild(div1);
+
+    // Style buttons
+    for (const animStyle of ANIMATION_STYLES) {
+      const btn = document.createElement('button');
+      btn.className = 'excaligif-toolbar-btn';
+      btn.dataset.style = animStyle.id;
+      btn.innerHTML = '<span class="excaligif-toolbar-icon">' + animStyle.icon + '</span>' + animStyle.label;
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        onStyleButtonClick(animStyle.id);
+      });
+      toolbar.appendChild(btn);
+    }
+
+    // Divider
+    const div2 = document.createElement('div');
+    div2.className = 'excaligif-toolbar-divider';
+    toolbar.appendChild(div2);
+
+    // Remove button
+    const removeBtn = document.createElement('button');
+    removeBtn.className = 'excaligif-toolbar-btn remove';
+    removeBtn.dataset.style = 'remove';
+    removeBtn.textContent = '✕';
+    removeBtn.title = 'Remove animation';
+    removeBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      onRemoveClick();
+    });
+    toolbar.appendChild(removeBtn);
+
+    document.body.appendChild(toolbar);
+    toolbarElement = toolbar;
+  }
+
+  function getSelectedAnimatableElement() {
+    if (!currentApp || !currentApp.state) return null;
+    const selectedIds = currentApp.state.selectedElementIds;
+    if (!selectedIds) return null;
+
+    const ids = Object.keys(selectedIds).filter(id => selectedIds[id]);
+    if (ids.length !== 1) return null;
+
+    const elements = currentApp.api ? currentApp.api.getSceneElements() : [];
+    const el = elements.find(e => e.id === ids[0] && !e.isDeleted);
+    if (!el) return null;
+
+    // Only show toolbar for arrows and lines with at least 2 points
+    if (el.type !== 'arrow' && el.type !== 'line') return null;
+    if (!el.points || el.points.length < 2) return null;
+
+    return el;
+  }
+
+  function updateToolbar() {
+    if (!toolbarElement) return;
+
+    const el = getSelectedAnimatableElement();
+
+    if (!el || !isEnabled || !currentSettings.flowEnabled) {
+      if (toolbarElement.classList.contains('visible')) {
+        toolbarElement.classList.remove('visible');
+      }
+      lastSelectedId = null;
+      return;
+    }
+
+    // Show toolbar
+    if (!toolbarElement.classList.contains('visible') || lastSelectedId !== el.id) {
+      toolbarElement.classList.add('visible');
+      lastSelectedId = el.id;
+    }
+
+    // Update active state on buttons
+    const config = animatedElements.get(el.id);
+    const activeStyle = config ? config.style : null;
+
+    const buttons = toolbarElement.querySelectorAll('.excaligif-toolbar-btn:not(.remove)');
+    for (const btn of buttons) {
+      btn.classList.toggle('active', btn.dataset.style === activeStyle);
+    }
+  }
+
+  function onStyleButtonClick(styleId) {
+    const el = getSelectedAnimatableElement();
+    if (!el) return;
+
+    const existing = animatedElements.get(el.id);
+
+    if (existing && existing.style === styleId) {
+      // Toggle off if clicking the same style
+      animatedElements.delete(el.id);
+    } else {
+      animatedElements.set(el.id, { style: styleId });
+    }
+
+    saveAnimatedElements();
+    updateToolbar();
+
+    // Ensure overlay loop is running if we have animated elements
+    if (animatedElements.size > 0 && isEnabled && currentSettings.flowEnabled) {
+      startOverlayLoop();
+    }
+  }
+
+  function onRemoveClick() {
+    const el = getSelectedAnimatableElement();
+    if (!el) return;
+
+    animatedElements.delete(el.id);
+    saveAnimatedElements();
+    updateToolbar();
+  }
+
   // Poll for Excalidraw instance
   setInterval(checkInstance, 1000);
+
+  // Fast poll for element selection (responsive toolbar updates)
+  setInterval(() => {
+    if (currentApp) updateToolbar();
+  }, 200);
 
   // Listen for Toggle Event from Content Script
   document.addEventListener('ExcaliGifToggleState', (e) => {
@@ -953,6 +1235,7 @@
       connected: !!currentApp,
       enabled: isEnabled,
       activeGifCount: activeGifs.size,
+      animatedElementCount: animatedElements.size,
       settings: currentSettings
     };
     document.dispatchEvent(new CustomEvent('ExcaliGifStatusResponse', { detail: reply }));

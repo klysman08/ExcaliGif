@@ -9,7 +9,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   const engineStatus = document.getElementById('engineStatus');
   
   const flowToggle = document.getElementById('flowToggle');
-  const flowStyle = document.getElementById('flowStyle');
   const flowSpeed = document.getElementById('flowSpeed');
   const flowSettingsGroup = document.getElementById('flowSettingsGroup');
 
@@ -72,7 +71,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     gifToggle.disabled = !status.connected;
     flowToggle.disabled = !status.connected;
-    flowStyle.disabled = !status.connected;
     flowSpeed.disabled = !status.connected;
     gifSpeed.disabled = !status.connected;
     flowDirection.disabled = !status.connected;
@@ -95,7 +93,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     gifToggle.checked = settings.gifsEnabled;
     flowToggle.checked = settings.flowEnabled;
-    flowStyle.value = settings.flowStyle;
     flowSpeed.value = settings.flowSpeed;
     gifSpeed.value = settings.gifSpeed || 1;
     flowDirection.value = settings.flowDirection || 'forward';
@@ -109,6 +106,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     gifSettingsGroup.style.display = settings.gifsEnabled ? 'flex' : 'none';
 
     gifCount.textContent = status.activeGifCount;
+    document.getElementById('animatedCount').textContent = status.animatedElementCount || 0;
     engineStatus.textContent = settings.gifsEnabled ? "Running" : "Paused";
     
     // Broadcast setting changes
@@ -116,7 +114,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       const currentSettings = {
         gifsEnabled: gifToggle.checked,
         flowEnabled: flowToggle.checked,
-        flowStyle: flowStyle.value,
         flowSpeed: flowSpeed.value,
         particleSize: parseInt(particleSize.value, 10),
         particleSpacing: parseInt(particleSpacing.value, 10),
@@ -135,7 +132,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     gifToggle.onchange = updateSettings;
     flowToggle.onchange = updateSettings;
-    flowStyle.onchange = updateSettings;
     flowSpeed.onchange = updateSettings;
     gifSpeed.onchange = updateSettings;
     flowDirection.onchange = updateSettings;
@@ -152,7 +148,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     gifToggle.checked = false;
     flowToggle.disabled = true;
     flowToggle.checked = false;
-    flowStyle.disabled = true;
     flowSpeed.disabled = true;
     gifSpeed.disabled = true;
     flowDirection.disabled = true;
@@ -162,6 +157,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     flowSettingsGroup.style.display = 'none';
     gifSettingsGroup.style.display = 'none';
     gifCount.textContent = "0";
+    document.getElementById('animatedCount').textContent = "0";
     engineStatus.textContent = "Inactive";
   }
 });
