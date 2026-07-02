@@ -12,7 +12,12 @@
     gifsEnabled: true,
     flowEnabled: true,
     flowStyle: 'particles',
-    flowSpeed: 'medium'
+    flowSpeed: 'medium',
+    particleSize: 3,
+    particleSpacing: 50,
+    glowIntensity: 'medium',
+    flowDirection: 'forward',
+    gifSpeed: 1
   };
 
   let overlayAnimationFrameId = null;
@@ -135,11 +140,11 @@
           frameCtx.putImageData(imgData, 0, 0);
           
           // Delay is in hundredths of a second (10ms)
-          const delay = info.delay * 10 || 100; // default to 100ms
+          const baseDelay = info.delay * 10 || 100; // default to 100ms
           
           this.frames.push({
             image: frameCanvas,
-            delay: delay
+            delay: baseDelay
           });
         }
         
@@ -211,7 +216,10 @@
       this.app.triggerRender(true);
       
       this.currentFrameIdx = (this.currentFrameIdx + 1) % this.frames.length;
-      this.timer = setTimeout(() => this.tick(), frame.delay);
+      // Apply GIF playback speed multiplier
+      const speedMultiplier = currentSettings.gifSpeed || 1;
+      const adjustedDelay = Math.max(10, Math.round(frame.delay / speedMultiplier));
+      this.timer = setTimeout(() => this.tick(), adjustedDelay);
     }
     
     stop() {
@@ -433,6 +441,8 @@
     
     let lastTime = 0;
     
+    let bounceForward = true;
+    
     function step(timestamp) {
       if (!lastTime) lastTime = timestamp;
       const dt = timestamp - lastTime;
@@ -442,7 +452,24 @@
       if (currentSettings.flowSpeed === 'slow') speed = 0.8;
       if (currentSettings.flowSpeed === 'fast') speed = 4;
       
-      flowOffset += speed * (dt / 16.666);
+      const direction = currentSettings.flowDirection || 'forward';
+      if (direction === 'reverse') {
+        flowOffset -= speed * (dt / 16.666);
+      } else if (direction === 'bounce') {
+        if (bounceForward) {
+          flowOffset += speed * (dt / 16.666);
+        } else {
+          flowOffset -= speed * (dt / 16.666);
+        }
+        // Flip direction every ~200 units of travel
+        if (Math.abs(flowOffset) % 400 > 200) {
+          bounceForward = !bounceForward;
+          // Normalize to prevent drift
+          flowOffset = flowOffset % 400;
+        }
+      } else {
+        flowOffset += speed * (dt / 16.666);
+      }
       
       drawOverlay(flowOffset);
       
@@ -524,16 +551,45 @@
         const geometry = getPathGeometry(absPoints);
         
         if (geometry.totalLength > 0) {
-          if (currentSettings.flowStyle === 'particles') {
-            drawParticles(ctx, el, geometry, offset);
-          } else if (currentSettings.flowStyle === 'dashes') {
-            drawDashes(ctx, el, geometry, offset);
+          const style = currentSettings.flowStyle || 'particles';
+          switch (style) {
+            case 'particles':
+              drawParticles(ctx, el, geometry, offset);
+              break;
+            case 'dashes':
+              drawDashes(ctx, el, geometry, offset);
+              break;
+            case 'gradient':
+              drawGradientPulse(ctx, el, geometry, offset);
+              break;
+            case 'ripple':
+              drawRippleWave(ctx, el, geometry, offset);
+              break;
+            case 'train':
+              drawPacketTrain(ctx, el, geometry, offset);
+              break;
+            case 'snake':
+              drawSnakeTrail(ctx, el, geometry, offset);
+              break;
+            default:
+              drawParticles(ctx, el, geometry, offset);
           }
         }
       }
     }
     
     ctx.restore();
+  }
+
+  function getGlowBlur() {
+    const intensity = currentSettings.glowIntensity || 'medium';
+    switch (intensity) {
+      case 'none': return 0;
+      case 'subtle': return 3;
+      case 'medium': return 6;
+      case 'strong': return 14;
+      default: return 6;
+    }
   }
 
   function drawParticles(ctx, el, geometry, offset) {
@@ -543,14 +599,18 @@
     ctx.save();
     ctx.fillStyle = strokeColor;
     
-    ctx.shadowColor = strokeColor;
-    ctx.shadowBlur = 6;
+    const glowBlur = getGlowBlur();
+    if (glowBlur > 0) {
+      ctx.shadowColor = strokeColor;
+      ctx.shadowBlur = glowBlur;
+    }
     
-    const spacing = 50; // pixels
-    const radius = Math.max(2.5, strokeWidth * 0.85);
+    const spacing = currentSettings.particleSpacing || 50;
+    const sizeFactor = (currentSettings.particleSize || 3) / 3;
+    const radius = Math.max(1.5, strokeWidth * 0.85 * sizeFactor);
     const totalLength = geometry.totalLength;
     
-    let d = offset % spacing;
+    let d = ((offset % spacing) + spacing) % spacing;
     while (d < totalLength) {
       const pt = getPointAtLength(geometry, d);
       ctx.beginPath();
@@ -568,11 +628,19 @@
     
     ctx.save();
     ctx.strokeStyle = strokeColor;
-    ctx.lineWidth = strokeWidth + 0.8;
+    const sizeFactor = (currentSettings.particleSize || 3) / 3;
+    ctx.lineWidth = (strokeWidth + 0.8) * sizeFactor;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
     
-    ctx.setLineDash([8, 8]);
+    const glowBlur = getGlowBlur();
+    if (glowBlur > 0) {
+      ctx.shadowColor = strokeColor;
+      ctx.shadowBlur = glowBlur;
+    }
+    
+    const dashSize = Math.max(4, 8 * sizeFactor);
+    ctx.setLineDash([dashSize, dashSize]);
     ctx.lineDashOffset = -offset;
     
     ctx.beginPath();
@@ -583,6 +651,231 @@
     }
     ctx.stroke();
     
+    ctx.restore();
+  }
+
+  // ═══════════════════════════════════════════════
+  // NEW ANIMATION STYLES
+  // ═══════════════════════════════════════════════
+
+  function drawGradientPulse(ctx, el, geometry, offset) {
+    const strokeColor = el.strokeColor || '#1e1e1e';
+    const strokeWidth = el.strokeWidth || 2;
+    const totalLength = geometry.totalLength;
+    if (totalLength === 0) return;
+    
+    ctx.save();
+    const sizeFactor = (currentSettings.particleSize || 3) / 3;
+    ctx.lineWidth = (strokeWidth + 2) * sizeFactor;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    
+    const glowBlur = getGlowBlur();
+    
+    // Draw multiple gradient sweeps along the path
+    const sweepLength = 80 * sizeFactor;
+    const spacing = currentSettings.particleSpacing || 50;
+    const sweepSpacing = Math.max(sweepLength + 20, spacing * 2);
+    
+    let startDist = ((offset * 1.5) % sweepSpacing);
+    if (startDist < 0) startDist += sweepSpacing;
+    
+    while (startDist < totalLength + sweepLength) {
+      // Draw a gradient segment
+      const steps = 20;
+      const stepLen = sweepLength / steps;
+      
+      for (let i = 0; i < steps; i++) {
+        const d1 = startDist + i * stepLen;
+        const d2 = startDist + (i + 1) * stepLen;
+        
+        if (d1 > totalLength || d2 < 0) continue;
+        
+        const clampD1 = Math.max(0, Math.min(d1, totalLength));
+        const clampD2 = Math.max(0, Math.min(d2, totalLength));
+        
+        const pt1 = getPointAtLength(geometry, clampD1);
+        const pt2 = getPointAtLength(geometry, clampD2);
+        
+        // Fade in at start, fade out at end of sweep
+        const t = i / steps;
+        const alpha = Math.sin(t * Math.PI) * 0.85;
+        
+        if (alpha <= 0.01) continue;
+        
+        ctx.globalAlpha = alpha;
+        ctx.strokeStyle = strokeColor;
+        if (glowBlur > 0) {
+          ctx.shadowColor = strokeColor;
+          ctx.shadowBlur = glowBlur * alpha;
+        }
+        
+        ctx.beginPath();
+        ctx.moveTo(pt1.x, pt1.y);
+        ctx.lineTo(pt2.x, pt2.y);
+        ctx.stroke();
+      }
+      
+      startDist += sweepSpacing;
+    }
+    
+    ctx.globalAlpha = 1;
+    ctx.restore();
+  }
+
+  function drawRippleWave(ctx, el, geometry, offset) {
+    const strokeColor = el.strokeColor || '#1e1e1e';
+    const strokeWidth = el.strokeWidth || 2;
+    const totalLength = geometry.totalLength;
+    if (totalLength === 0) return;
+    
+    ctx.save();
+    const sizeFactor = (currentSettings.particleSize || 3) / 3;
+    const glowBlur = getGlowBlur();
+    const spacing = currentSettings.particleSpacing || 50;
+    const maxRadius = (8 + strokeWidth * 2) * sizeFactor;
+    
+    // Place ripple centers along the path at intervals
+    let d = ((offset * 0.8) % spacing + spacing) % spacing;
+    while (d < totalLength) {
+      const pt = getPointAtLength(geometry, d);
+      
+      // Each ripple has 3 expanding rings
+      for (let ring = 0; ring < 3; ring++) {
+        const phase = ((offset * 0.06) + ring * 0.33) % 1;
+        const radius = phase * maxRadius;
+        const alpha = (1 - phase) * 0.6;
+        
+        if (alpha <= 0.02) continue;
+        
+        ctx.globalAlpha = alpha;
+        ctx.strokeStyle = strokeColor;
+        ctx.lineWidth = Math.max(1, (strokeWidth * 0.4) * sizeFactor * (1 - phase));
+        
+        if (glowBlur > 0) {
+          ctx.shadowColor = strokeColor;
+          ctx.shadowBlur = glowBlur * alpha;
+        }
+        
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, radius, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      
+      d += spacing;
+    }
+    
+    ctx.globalAlpha = 1;
+    ctx.restore();
+  }
+
+  function drawPacketTrain(ctx, el, geometry, offset) {
+    const strokeColor = el.strokeColor || '#1e1e1e';
+    const strokeWidth = el.strokeWidth || 2;
+    const totalLength = geometry.totalLength;
+    if (totalLength === 0) return;
+    
+    ctx.save();
+    const sizeFactor = (currentSettings.particleSize || 3) / 3;
+    const glowBlur = getGlowBlur();
+    const spacing = currentSettings.particleSpacing || 50;
+    
+    ctx.fillStyle = strokeColor;
+    if (glowBlur > 0) {
+      ctx.shadowColor = strokeColor;
+      ctx.shadowBlur = glowBlur;
+    }
+    
+    const packetLen = 10 * sizeFactor;
+    const packetWidth = (strokeWidth + 2) * sizeFactor;
+    
+    let d = ((offset * 1.2) % spacing + spacing) % spacing;
+    while (d < totalLength) {
+      const pt = getPointAtLength(geometry, d);
+      const angle = Math.atan2(pt.dy, pt.dx);
+      
+      ctx.save();
+      ctx.translate(pt.x, pt.y);
+      ctx.rotate(angle);
+      
+      // Draw a chevron/arrow packet shape
+      ctx.beginPath();
+      ctx.moveTo(packetLen / 2, 0);
+      ctx.lineTo(-packetLen / 2, -packetWidth / 2);
+      ctx.lineTo(-packetLen / 4, 0);
+      ctx.lineTo(-packetLen / 2, packetWidth / 2);
+      ctx.closePath();
+      ctx.fill();
+      
+      ctx.restore();
+      
+      d += spacing;
+    }
+    
+    ctx.restore();
+  }
+
+  function drawSnakeTrail(ctx, el, geometry, offset) {
+    const strokeColor = el.strokeColor || '#1e1e1e';
+    const strokeWidth = el.strokeWidth || 2;
+    const totalLength = geometry.totalLength;
+    if (totalLength === 0) return;
+    
+    ctx.save();
+    const sizeFactor = (currentSettings.particleSize || 3) / 3;
+    const glowBlur = getGlowBlur();
+    const spacing = currentSettings.particleSpacing || 50;
+    
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    
+    // Draw tapered, fading trail segments
+    const trailLength = spacing * 1.5;
+    const trailSpacing = spacing * 2.5;
+    const steps = 30;
+    const stepLen = trailLength / steps;
+    
+    let startDist = ((offset * 1.3) % trailSpacing + trailSpacing) % trailSpacing;
+    
+    while (startDist < totalLength + trailLength) {
+      for (let i = 0; i < steps - 1; i++) {
+        const d1 = startDist - i * stepLen;
+        const d2 = startDist - (i + 1) * stepLen;
+        
+        if (d1 < 0 || d2 > totalLength) continue;
+        
+        const clampD1 = Math.max(0, Math.min(d1, totalLength));
+        const clampD2 = Math.max(0, Math.min(d2, totalLength));
+        
+        const pt1 = getPointAtLength(geometry, clampD1);
+        const pt2 = getPointAtLength(geometry, clampD2);
+        
+        // Taper: head is thick, tail thins out
+        const taper = 1 - (i / steps);
+        const alpha = taper * 0.75;
+        const width = Math.max(1, (strokeWidth + 2) * sizeFactor * taper);
+        
+        if (alpha <= 0.02) continue;
+        
+        ctx.globalAlpha = alpha;
+        ctx.strokeStyle = strokeColor;
+        ctx.lineWidth = width;
+        
+        if (glowBlur > 0) {
+          ctx.shadowColor = strokeColor;
+          ctx.shadowBlur = glowBlur * taper;
+        }
+        
+        ctx.beginPath();
+        ctx.moveTo(pt1.x, pt1.y);
+        ctx.lineTo(pt2.x, pt2.y);
+        ctx.stroke();
+      }
+      
+      startDist += trailSpacing;
+    }
+    
+    ctx.globalAlpha = 1;
     ctx.restore();
   }
 

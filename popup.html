@@ -40,6 +40,17 @@
           </label>
         </div>
       </div>
+      <div class="flow-settings-group" id="gifSettingsGroup">
+        <div class="settings-row">
+          <span>Playback Speed</span>
+          <select id="gifSpeed">
+            <option value="0.5">0.5×</option>
+            <option value="1" selected>1×</option>
+            <option value="1.5">1.5×</option>
+            <option value="2">2×</option>
+          </select>
+        </div>
+      </div>
     </div>
 
     <!-- Flow Animations Card -->
@@ -62,6 +73,10 @@
           <select id="flowStyle">
             <option value="particles">Particles</option>
             <option value="dashes">Marching Ants</option>
+            <option value="gradient">Gradient Pulse</option>
+            <option value="ripple">Ripple Wave</option>
+            <option value="train">Packet Train</option>
+            <option value="snake">Snake Trail</option>
           </select>
         </div>
         <div class="settings-row">
@@ -71,6 +86,46 @@
             <option value="medium" selected>Medium</option>
             <option value="fast">Fast</option>
           </select>
+        </div>
+        <div class="settings-row">
+          <span>Direction</span>
+          <select id="flowDirection">
+            <option value="forward">Forward →</option>
+            <option value="reverse">Reverse ←</option>
+            <option value="bounce">Bounce ↔</option>
+          </select>
+        </div>
+
+        <!-- Advanced Settings Toggle -->
+        <button class="advanced-toggle" id="advancedToggle" type="button">
+          <span class="advanced-toggle-icon" id="advancedToggleIcon">▸</span>
+          <span>Advanced Settings</span>
+        </button>
+
+        <div class="advanced-settings" id="advancedSettings">
+          <div class="settings-row">
+            <span>Element Size</span>
+            <div class="range-group">
+              <input type="range" id="particleSize" min="1" max="5" value="3" step="1">
+              <span class="range-value" id="particleSizeValue">3</span>
+            </div>
+          </div>
+          <div class="settings-row">
+            <span>Spacing</span>
+            <div class="range-group">
+              <input type="range" id="particleSpacing" min="20" max="120" value="50" step="5">
+              <span class="range-value" id="particleSpacingValue">50</span>
+            </div>
+          </div>
+          <div class="settings-row">
+            <span>Glow Intensity</span>
+            <select id="glowIntensity">
+              <option value="none">None</option>
+              <option value="subtle">Subtle</option>
+              <option value="medium" selected>Medium</option>
+              <option value="strong">Strong</option>
+            </select>
+          </div>
         </div>
       </div>
     </div>
