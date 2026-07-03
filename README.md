@@ -60,7 +60,7 @@ ExcaliGif injects a script into the page context (`MAIN` world) to access the un
 
 ## 🌐 Showcase & Demo Page
 
-To experience a simulator of this extension and play around with retro sound effects and pixel styles, check out our [GitHub Pages Showcase Site](https://klysman08.github.io/ExcaliGif).
+To experience a simulator of this extension and play around with retro sound effects and pixel styles, visit the [ExcaliGif website](https://excaligif.astrofocus.app/).
 
 ---
 

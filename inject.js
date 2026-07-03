@@ -1048,13 +1048,6 @@
   function injectToolbarStyles() {
     if (document.getElementById('excaligif-toolbar-styles')) return;
 
-    if (!document.querySelector('link[href*="Outfit"]')) {
-      const fontLink = document.createElement('link');
-      fontLink.rel = 'stylesheet';
-      fontLink.href = 'https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap';
-      document.head.appendChild(fontLink);
-    }
-
     const style = document.createElement('style');
     style.id = 'excaligif-toolbar-styles';
     style.textContent = `
@@ -1068,7 +1061,7 @@
         flex-direction: column;
         align-items: center;
         gap: 6px;
-        font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         user-select: none;
       }
       .excaligif-toolbar.visible {

@@ -1,9 +1,19 @@
 {
   "manifest_version": 3,
-  "name": "ExcaliGif - GIF Support for Excalidraw",
+  "name": "ExcaliGif: Animated GIFs for Excalidraw",
+  "short_name": "ExcaliGif",
   "version": "2.0.0",
-  "description": "Enables animated GIF files directly on the Excalidraw whiteboard canvas.",
+  "description": "Play animated GIFs and add customizable motion effects to lines and arrows directly in Excalidraw.",
+  "homepage_url": "https://excaligif.astrofocus.app/",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
   "permissions": ["activeTab"],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  },
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
