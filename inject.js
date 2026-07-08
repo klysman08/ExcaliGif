@@ -1945,7 +1945,7 @@
       .material-icons-two-tone { font-family: 'Material Icons Two Tone' !important; }
 
       /* Web Fonts Loading display */
-      .excaligif-icon-card span.icon-glyph {
+      .excaligif-icon-card span.excaligif-icon-glyph {
         font-size: 28px;
         margin-bottom: 4px;
         color: rgba(255, 255, 255, 0.85);
@@ -2298,7 +2298,7 @@
         transform: translateY(-3px);
         box-shadow: 0 6px 14px rgba(140, 90, 220, 0.12);
       }
-      .excaligif-icon-card:hover span.icon-glyph {
+      .excaligif-icon-card:hover span.excaligif-icon-glyph {
         transform: scale(1.15);
         color: hsl(270, 75%, 70%);
       }
@@ -2499,7 +2499,7 @@
         background: rgba(0, 0, 0, 0.015);
         border-color: rgba(0, 0, 0, 0.04);
       }
-      .excaligif-icons-sidebar.theme--light .excaligif-icon-card span.icon-glyph {
+      .excaligif-icons-sidebar.theme--light .excaligif-icon-card span.excaligif-icon-glyph {
         color: rgba(0, 0, 0, 0.75);
       }
       .excaligif-icons-sidebar.theme--light .excaligif-icon-card span.icon-name {
@@ -2510,7 +2510,7 @@
         border-color: rgba(140, 90, 220, 0.3);
         box-shadow: 0 6px 14px rgba(140, 90, 220, 0.08);
       }
-      .excaligif-icons-sidebar.theme--light .excaligif-icon-card:hover span.icon-glyph {
+      .excaligif-icons-sidebar.theme--light .excaligif-icon-card:hover span.excaligif-icon-glyph {
         color: hsl(270, 75%, 45%);
       }
       .excaligif-icons-sidebar.theme--light .excaligif-icon-card:hover span.icon-name {
@@ -2888,7 +2888,7 @@
       
       if (activeSet === 'lucide') {
         card.innerHTML = `
-          <span class="icon-glyph icon-${icon.n}"></span>
+          <span class="excaligif-icon-glyph icon-${icon.n}"></span>
           <span class="icon-name">${icon.n.replace(/-/g, ' ')}</span>
         `;
       } else {
@@ -2904,7 +2904,7 @@
         }
 
         card.innerHTML = `
-          <span class="icon-glyph ${glyphClass}">${icon.n}</span>
+          <span class="excaligif-icon-glyph ${glyphClass}">${icon.n}</span>
           <span class="icon-name">${icon.n.replace(/_/g, ' ')}</span>
         `;
       }
