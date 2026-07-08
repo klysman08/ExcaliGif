@@ -6,7 +6,7 @@
   }
 
   if (root) {
-    Object.defineProperty(root, 'ExcaliGifCore', {
+    Object.defineProperty(root, 'ExcaliupCore', {
       value: api,
       configurable: true
     });

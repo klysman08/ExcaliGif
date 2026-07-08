@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 
-const core = require('../excaligif-core.js');
+const core = require('../excaliup-core.js');
 
 test('injected runtime boots without a canvas and keeps GIF and flow settings independent', () => {
   const listeners = new Map();
@@ -27,7 +27,7 @@ test('injected runtime boots without a canvas and keeps GIF and flow settings in
     }
   };
   const window = {
-    ExcaliGifCore: core,
+    ExcaliupCore: core,
     addEventListener() {},
     devicePixelRatio: 1
   };

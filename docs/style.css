@@ -1,4 +1,4 @@
-/* ExcaliGif Design System & Landing Page Style */
+/* Excali Up Design System & Landing Page Style */
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Press+Start+2P&family=VT323&display=swap');
 
 /* Color Variables & System Setup */
@@ -163,7 +163,7 @@ a:hover {
   color: var(--color-text-main);
 }
 
-.logo-gif {
+.logo-up {
   color: var(--color-primary);
   background: var(--color-secondary);
   padding: 0px 8px;

@@ -2,7 +2,7 @@
 
 ## Project Structure & Module Organization
 
-ExcaliGif is a dependency-free Chrome Manifest V3 extension. Root files contain the extension runtime: `manifest.json` declares entry points, `content.js` bridges execution contexts, and `inject.js` handles Excalidraw integration, GIF playback, and canvas flows. `popup.html`, `popup.css`, and `popup.js` implement the popup. Treat `omggif.js` as vendored decoder code.
+Excali Up is a dependency-free Chrome Manifest V3 extension. Root files contain the extension runtime: `manifest.json` declares entry points, `content.js` bridges execution contexts, and `inject.js` handles Excalidraw integration, GIF playback, and canvas flows. `popup.html`, `popup.css`, and `popup.js` implement the popup. Treat `omggif.js` as vendored decoder code.
 
 Generated artwork is stored in `icons/`; `generate_icons.py` is its source. `docs/` is a standalone GitHub Pages showcase. There is no automated test directory.
 

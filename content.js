@@ -1,4 +1,4 @@
-// ExcaliGif content script
+// Excali Up content script
 // Proxy content script that routes messages between the popup (isolated world)
 // and the Excalidraw page context (main world) via custom DOM events
 
@@ -53,7 +53,7 @@ document.addEventListener('ExcaliGifGetIconsData', async () => {
     const event = new CustomEvent('ExcaliGifIconsDataResponse', { detail: { success: true, data } });
     document.dispatchEvent(event);
   } catch (error) {
-    console.error('[ExcaliGif] Failed to load icons metadata:', error);
+    console.error('[Excali Up] Failed to load icons metadata:', error);
     const event = new CustomEvent('ExcaliGifIconsDataResponse', { detail: { success: false, error: error.message } });
     document.dispatchEvent(event);
   }

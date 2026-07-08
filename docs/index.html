@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <!-- SEO Tags -->
-  <title>ExcaliGif - Animated GIF Support for Excalidraw</title>
-  <meta name="description" content="Add real-time animated GIF files to your Excalidraw whiteboard canvases with this lightweight, retro-styled browser extension.">
-  <meta name="keywords" content="Excalidraw, GIF, chrome extension, animation, canvas, whiteboard, pixel art">
+  <title>Excali Up - Animated GIFs and Icons for Excalidraw</title>
+  <meta name="description" content="Add real-time animated GIF files and Google Material Icons to your Excalidraw whiteboard canvases with this lightweight, retro-styled browser extension.">
+  <meta name="keywords" content="Excalidraw, GIF, Icons, chrome extension, animation, canvas, whiteboard, pixel art">
   
   <!-- Style Link -->
   <link rel="stylesheet" href="style.css">
@@ -18,7 +18,7 @@
   <header class="container">
     <nav class="navbar" id="main-nav" aria-label="Main Navigation">
       <div class="logo">
-        <span class="logo-excali">Excali</span><span class="logo-gif">Gif</span>
+        <span class="logo-excali">Excali</span><span class="logo-up">Up</span>
       </div>
       <div class="nav-links">
         <a href="#playground" class="nav-link">Demo Board</a>
@@ -41,10 +41,10 @@
   <main class="container">
     <section class="hero" aria-labelledby="hero-title">
       <div class="hero-content">
-        <span class="pixel-badge" style="margin-bottom:15px;">v2.0.0 RELEASE</span>
+        <span class="pixel-badge" style="margin-bottom:15px;">v3.0.0 RELEASE</span>
         <h1 id="hero-title">Animate Your<br><span style="color:var(--color-primary)">Whiteboards</span></h1>
         <p class="hero-subtitle">
-          Enables animated GIF files directly on the Excalidraw whiteboard canvas. Ditch static first-frame placeholders and bring your sketches to life.
+          Enables animated GIF files, customizable path motion flows, and Google Material Icons directly inside your Excalidraw whiteboard canvas.
         </p>
         <div class="hero-buttons">
           <button class="btn-retro primary" id="installBtn" aria-label="Install Extension Button">
@@ -74,7 +74,7 @@
               <!-- Arrow indicator -->
               <div class="arrow-connection">➔</div>
               
-              <!-- Right: Animating GIF with ExcaliGif -->
+              <!-- Right: Animating GIF with Excali Up -->
               <div class="drawing-gif-box">
                 <span style="font-size: 1.5rem; display:block; margin: 5px 0; animation: float 1s infinite alternate;">🔥</span>
               </div>
@@ -85,6 +85,37 @@
           </div>
           <div class="monitor-stand"></div>
           <div class="monitor-base"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Core Features Section -->
+    <section class="features-section" style="margin-bottom: 40px;">
+      <h2 style="margin-bottom: 25px;">⚡ Core Features</h2>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+        <!-- Card 1 -->
+        <div class="pixel-card interactive" style="margin-bottom: 0;">
+          <span class="pixel-badge success" style="margin-bottom: 15px;">v3.0 FEATURE</span>
+          <h3 style="font-family: var(--font-retro); font-size: 1.6rem; color: var(--color-primary); margin-bottom: 10px;">🎨 Google Material Icons</h3>
+          <p style="font-size: 0.95rem; margin: 0;">
+            Access thousands of legacy and modern Material Icons and symbols directly inside Excalidraw via a dedicated sidebar. Supports pagination, search, categories, dynamic light/dark mode sync, and simple drag-and-drop or click-to-copy!
+          </p>
+        </div>
+        <!-- Card 2 -->
+        <div class="pixel-card interactive" style="margin-bottom: 0;">
+          <span class="pixel-badge" style="margin-bottom: 15px; background: var(--color-info); color: white;">6 MOTION STYLES</span>
+          <h3 style="font-family: var(--font-retro); font-size: 1.6rem; color: var(--color-primary); margin-bottom: 10px;">🌊 Line & Arrow Flows</h3>
+          <p style="font-size: 0.95rem; margin: 0;">
+            Tether customizable flows along arrows and drawn lines. Pick from Particles, Marching Ants, Gradient Pulse, Ripple Wave, Packet Train, and Snake Trail. Tune speed, direction (forward, reverse, bounce), spacing, size, and glow.
+          </p>
+        </div>
+        <!-- Card 3 -->
+        <div class="pixel-card interactive" style="margin-bottom: 0;">
+          <span class="pixel-badge" style="margin-bottom: 15px;">NATIVE PLAYBACK</span>
+          <h3 style="font-family: var(--font-retro); font-size: 1.6rem; color: var(--color-primary); margin-bottom: 10px;">👾 Real-time GIF Engine</h3>
+          <p style="font-size: 0.95rem; margin: 0;">
+            Drag and drop animated GIF files to see them loop directly on the canvas. Uses a lightweight zero-dependency frame-by-frame decoder to intercept Excalidraw's React Fiber image cache and swap static frames with dynamic canvas animations.
+          </p>
         </div>
       </div>
     </section>
@@ -138,7 +169,7 @@
               
               <!-- Main Toolbar Bar -->
               <div class="sim-toolbar-main">
-                <div class="sim-toolbar-label">Excali<span>Gif</span></div>
+                <div class="sim-toolbar-label">Excali<span>Up</span></div>
                 <div class="sim-toolbar-divider"></div>
                 <button class="sim-toolbar-btn active" data-style="particles" title="Particles style">● Particles</button>
                 <button class="sim-toolbar-btn" data-style="dashes" title="Marching Ants style">⋯ Ants</button>
@@ -156,9 +187,9 @@
             <div class="sim-popup-body">
               <header class="sim-header">
                 <div class="sim-logo">
-                  <span class="sim-logo-bold">Excali</span><span class="sim-logo-light">Gif</span>
+                  <span class="sim-logo-bold">Excali</span><span class="sim-logo-light">Up</span>
                 </div>
-                <div class="sim-version">v2.0.0</div>
+                <div class="sim-version">v3.0.0</div>
               </header>
 
               <!-- Connection Status Banner -->
@@ -328,7 +359,7 @@
       <div class="pixel-card" style="margin-bottom: 0;">
         <h2 id="tech-title">🧬 Hooking React Fiber</h2>
         <p>
-          Unlike standard canvas extensions that paste overlays, ExcaliGif works natively with **Excalidraw's core rendering pipeline**:
+          Unlike standard canvas extensions that paste overlays, Excali Up works natively with **Excalidraw's core rendering pipeline**:
         </p>
         <ul style="margin-left: 20px; margin-bottom: 15px; display:flex; flex-direction:column; gap:10px;">
           <li><b>DOM Traversal:</b> Resolves react nodes by searching `.excalidraw__canvas.interactive` for key attributes.</li>
@@ -389,7 +420,7 @@ imageCache.set = <span class="code-keyword">function</span>(fileId, cacheEntry) 
         <div class="faq-item" tabindex="0">
           <h3 class="faq-question">How does performance hold up with multiple GIFs?</h3>
           <div class="faq-answer">
-            ExcaliGif optimizes memory by managing a single rendering tick per GIF element and running decoding once. If you load dozens of highly detailed GIFs, you can use the Extension Toggle Switch to pause the rendering loop and save CPU power instantly.
+            Excali Up optimizes memory by managing a single rendering tick per GIF element and running decoding once. If you load dozens of highly detailed GIFs, you can use the Extension Toggle Switch to pause the rendering loop and save CPU power instantly.
           </div>
         </div>
       </div>
@@ -400,7 +431,7 @@ imageCache.set = <span class="code-keyword">function</span>(fileId, cacheEntry) 
   <footer class="main-footer">
     <div class="container">
       <div class="footer-logo">
-        <span class="logo-excali">Excali</span><span style="color:var(--color-primary)">Gif</span> 👾
+        <span class="logo-excali">Excali</span><span style="color:var(--color-primary)">Up</span> 👾
       </div>
       <div style="display:flex; gap:16px; flex-wrap:wrap; justify-content:center;">
         <a href="https://github.com/klysman08" class="footer-copy">

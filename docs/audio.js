@@ -1,4 +1,4 @@
-// ExcaliGif Web Audio Synthesizer
+// Excali Up Web Audio Synthesizer
 // Generates zero-dependency retro 8-bit sound effects in real-time
 
 let audioCtx = null;

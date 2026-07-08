@@ -1,4 +1,4 @@
-// ExcaliGif Popup logic
+// Excali Up Popup logic
 // Communicates with Excalidraw's content script to query status and toggle execution state
 
 document.addEventListener('DOMContentLoaded', async () => {

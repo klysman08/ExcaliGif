@@ -1,12 +1,12 @@
-// ExcaliGif injected script
+// Excali Up injected script
 // Runs in the main context of the page to access React Fiber internals and the Canvas imageCache
 
 (function() {
-  console.log("[ExcaliGif] Inject script loaded.");
+  console.log("[Excali Up] Inject script loaded.");
 
-  const Core = window.ExcaliGifCore;
+  const Core = window.ExcaliupCore;
   if (!Core) {
-    console.error('[ExcaliGif] Runtime core is unavailable.');
+    console.error('[Excali Up] Runtime core is unavailable.');
     return;
   }
 
@@ -24,6 +24,8 @@
   let activeStyle = 'outlined'; // 'outlined' | 'rounded' | 'sharp' | 'filled' | 'round' | 'two-tone'
   let activeCategory = 'All';
   let searchQuery = '';
+  let currentPage = 1;
+  const pageSize = 96;
   const svgCache = new Map();
 
   let overlayAnimationFrameId = null;
@@ -43,11 +45,15 @@
   let animationMetadataTimer = null;
   const pendingAnimationMetadata = new Map();
   const pendingAnimationMetadataRemovals = new Set();
-  const ANIMATION_METADATA_KEY = 'excaligifAnimation';
+  const ANIMATION_METADATA_KEY = 'excaliupAnimation';
+  const OLD_ANIMATION_METADATA_KEY = 'excaligifAnimation';
 
   // Load animated elements from localStorage
   try {
-    const saved = localStorage.getItem('excaligif_animated_elements');
+    let saved = localStorage.getItem('excaliup_animated_elements');
+    if (!saved) {
+      saved = localStorage.getItem('excaligif_animated_elements');
+    }
     if (saved) {
       const parsed = JSON.parse(saved);
       for (const [id, config] of Object.entries(parsed)) {
@@ -56,7 +62,7 @@
       animatedElementsRevision++;
     }
   } catch (e) {
-    console.error("[ExcaliGif] Error loading animated elements:", e);
+    console.error("[Excali Up] Error loading animated elements:", e);
   }
 
   function saveAnimatedElements(immediate = false) {
@@ -67,9 +73,9 @@
         for (const [id, config] of animatedElements.entries()) {
           obj[id] = config;
         }
-        localStorage.setItem('excaligif_animated_elements', JSON.stringify(obj));
+        localStorage.setItem('excaliup_animated_elements', JSON.stringify(obj));
       } catch (error) {
-        console.error('[ExcaliGif] Error saving animated elements:', error);
+        console.error('[Excali Up] Error saving animated elements:', error);
       }
     };
 
@@ -198,13 +204,16 @@
 
   // Load settings from localStorage if available
   try {
-    const saved = localStorage.getItem('excaligif_settings');
+    let saved = localStorage.getItem('excaliup_settings');
+    if (!saved) {
+      saved = localStorage.getItem('excaligif_settings');
+    }
     if (saved) {
       const parsed = JSON.parse(saved);
       Object.assign(currentSettings, Core.normalizeSettings(parsed, currentSettings));
     }
   } catch (e) {
-    console.error("[ExcaliGif] Error loading saved settings:", e);
+    console.error("[Excali Up] Error loading saved settings:", e);
   }
 
 
@@ -238,7 +247,7 @@
       // Skip empty, invalid, or standard transparent 1x1 GIF placeholder sources
       if (!src || src.startsWith('data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7')) {
         this.lastSrc = src;
-        console.log("[ExcaliGif] Skipping empty/placeholder image source for fileId:", this.fileId);
+        console.log("[Excali Up] Skipping empty/placeholder image source for fileId:", this.fileId);
         return;
       }
 
@@ -247,7 +256,7 @@
       this.lastSrc = src;
 
       try {
-        console.log("[ExcaliGif] Fetching GIF data for fileId:", this.fileId, "src:", src.substring(0, 100));
+        console.log("[Excali Up] Fetching GIF data for fileId:", this.fileId, "src:", src.substring(0, 100));
         const response = await fetch(src, { signal: abortController.signal });
         if (!response.ok && !src.startsWith('data:') && !src.startsWith('blob:')) {
           throw new Error(`GIF request failed with status ${response.status}`);
@@ -265,7 +274,7 @@
         const width = reader.width;
         const height = reader.height;
         const numFrames = reader.numFrames();
-        console.log(`[ExcaliGif] Decoding GIF: ${width}x${height}, ${numFrames} frames`);
+        console.log(`[Excali Up] Decoding GIF: ${width}x${height}, ${numFrames} frames`);
         if (numFrames <= 0) return;
 
         const decodedFrames = [];
@@ -366,7 +375,7 @@
         }
       } catch (e) {
         if (e.name !== 'AbortError') {
-          console.error("[ExcaliGif] Error initializing player for fileId " + this.fileId, e);
+          console.error("[Excali Up] Error initializing player for fileId " + this.fileId, e);
         }
       } finally {
         if (this.abortController === abortController) this.abortController = null;
@@ -513,7 +522,7 @@
         const res = originalSet.apply(this, arguments);
         if (cacheEntry && cacheEntry.mimeType === 'image/gif') {
           if (!activeGifs.has(fileId)) {
-            console.log("[ExcaliGif] Hooked new GIF fileId:", fileId);
+            console.log("[Excali Up] Hooked new GIF fileId:", fileId);
             activeGifs.set(fileId, new GifPlayer(fileId, cacheEntry, app));
           } else {
             const player = activeGifs.get(fileId);
@@ -521,7 +530,7 @@
             
             // Check if the image source changed from the placeholder to a real URL
             if (cacheEntry.image && cacheEntry.image.src && cacheEntry.image.src !== player.lastSrc) {
-              console.log("[ExcaliGif] Image source changed for fileId:", fileId, ". Re-initializing...");
+              console.log("[Excali Up] Image source changed for fileId:", fileId, ". Re-initializing...");
               player.originalImage = cacheEntry.image;
               player.loadPromise = player.init();
             }
@@ -540,7 +549,7 @@
       // Scan existing GIF cache entries
       for (const [fileId, cacheEntry] of app.imageCache.entries()) {
         if (cacheEntry && cacheEntry.mimeType === 'image/gif' && !activeGifs.has(fileId)) {
-          console.log("[ExcaliGif] Hooked existing GIF fileId:", fileId);
+          console.log("[Excali Up] Hooked existing GIF fileId:", fileId);
           activeGifs.set(fileId, new GifPlayer(fileId, cacheEntry, app));
         }
       }
@@ -574,7 +583,7 @@
     if (app === currentApp) return;
     if (currentApp) detachCurrentApp();
 
-    console.log("[ExcaliGif] Hooked Excalidraw instance!");
+    console.log("[Excali Up] Hooked Excalidraw instance!");
     currentApp = app;
     hookImageCache(app);
     createToolbar();
@@ -592,7 +601,7 @@
     for (const [fileId, player] of activeGifs.entries()) {
       const cacheEntry = currentApp.imageCache.get(fileId);
       if (!activeFileIds.has(fileId) || !cacheEntry) {
-        console.log("[ExcaliGif] Cleaning up player for fileId:", fileId);
+        console.log("[Excali Up] Cleaning up player for fileId:", fileId);
         player.destroy();
         activeGifs.delete(fileId);
       }
@@ -1469,7 +1478,7 @@
     // Logo label
     const label = document.createElement('div');
     label.className = 'excaligif-toolbar-label';
-    label.innerHTML = 'Excali<span>Gif</span>';
+    label.innerHTML = 'Excali<span>Up</span>';
     mainBar.appendChild(label);
 
     // Divider
@@ -1822,12 +1831,12 @@
     currentSettings.gifsEnabled = targetEnabled;
 
     try {
-      localStorage.setItem('excaligif_settings', JSON.stringify(currentSettings));
+      localStorage.setItem('excaliup_settings', JSON.stringify(currentSettings));
     } catch (error) {
-      console.error('[ExcaliGif] Error saving settings:', error);
+      console.error('[Excali Up] Error saving settings:', error);
     }
 
-    console.log("[ExcaliGif] GIF playback toggled to:", targetEnabled);
+    console.log("[Excali Up] GIF playback toggled to:", targetEnabled);
     reconcileRuntime();
     refreshGifElements(new Set(activeGifs.keys()));
   });
@@ -1838,12 +1847,12 @@
     Object.assign(currentSettings, Core.normalizeSettings(e.detail, currentSettings));
 
     try {
-      localStorage.setItem('excaligif_settings', JSON.stringify(currentSettings));
+      localStorage.setItem('excaliup_settings', JSON.stringify(currentSettings));
     } catch (error) {
-      console.error('[ExcaliGif] Error saving settings:', error);
+      console.error('[Excali Up] Error saving settings:', error);
     }
 
-    console.log("[ExcaliGif] Settings updated:", currentSettings);
+    console.log("[Excali Up] Settings updated:", currentSettings);
 
     reconcileRuntime();
     if (
@@ -1927,10 +1936,10 @@
 
       /* Web Fonts Loading display */
       .excaligif-icon-card span.icon-glyph {
-        font-size: 24px;
-        margin-bottom: 6px;
+        font-size: 28px;
+        margin-bottom: 4px;
         color: rgba(255, 255, 255, 0.85);
-        transition: transform 0.2s ease, color 0.2s ease;
+        transition: transform 0.22s cubic-bezier(0.25, 0.8, 0.25, 1), color 0.22s ease;
         display: inline-block;
         line-height: 1;
         text-transform: none;
@@ -2216,13 +2225,14 @@
         color: hsl(270, 75%, 70%);
       }
 
+      /* Grid and Cards (Dark / Default) */
       .excaligif-icons-grid {
         flex: 1;
         overflow-y: auto;
         padding: 16px 20px;
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(58px, 1fr));
-        gap: 10px;
+        grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
+        gap: 12px;
       }
       .excaligif-icons-grid::-webkit-scrollbar {
         width: 6px;
@@ -2242,13 +2252,15 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        justify-content: center;
-        background: rgba(255, 255, 255, 0.02);
-        border: 1px solid rgba(255, 255, 255, 0.04);
-        border-radius: 10px;
-        padding: 8px 4px;
+        justify-content: space-between;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        padding: 14px 6px;
+        height: 82px;
+        box-sizing: border-box;
         cursor: grab;
-        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: all 0.22s cubic-bezier(0.25, 0.8, 0.25, 1);
         text-align: center;
         position: relative;
         overflow: hidden;
@@ -2256,29 +2268,32 @@
       .excaligif-icon-card:active {
         cursor: grabbing;
       }
-      .excaligif-icon-card span.icon-glyph {
-        color: rgba(255, 255, 255, 0.85);
-      }
       .excaligif-icon-card span.icon-name {
-        font-size: 9px;
-        color: rgba(255, 255, 255, 0.4);
+        font-size: 9.5px;
+        line-height: 1.2;
+        color: rgba(255, 255, 255, 0.45);
         width: 100%;
-        white-space: nowrap;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
         overflow: hidden;
         text-overflow: ellipsis;
-        padding: 0 2px;
+        padding: 0 4px;
+        word-break: break-word;
+        margin-top: auto;
       }
       .excaligif-icon-card:hover {
-        background: rgba(140, 90, 220, 0.08);
-        border-color: rgba(140, 90, 220, 0.35);
-        transform: translateY(-2px);
+        background: rgba(140, 90, 220, 0.12);
+        border-color: rgba(140, 90, 220, 0.45);
+        transform: translateY(-3px);
+        box-shadow: 0 6px 14px rgba(140, 90, 220, 0.12);
       }
       .excaligif-icon-card:hover span.icon-glyph {
         transform: scale(1.15);
         color: hsl(270, 75%, 70%);
       }
       .excaligif-icon-card:hover span.icon-name {
-        color: rgba(255, 255, 255, 0.7);
+        color: rgba(255, 255, 255, 0.8);
       }
 
       .excaligif-icons-loading, .excaligif-icons-error, .excaligif-icons-empty {
@@ -2303,6 +2318,44 @@
       }
       @keyframes excaligif-spin {
         to { transform: rotate(360deg); }
+      }
+
+      /* Pagination Bar (Dark / Default) */
+      .excaligif-icons-pagination {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 20px;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        background: rgba(0, 0, 0, 0.12);
+      }
+      .excaligif-page-btn {
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 8px;
+        color: rgba(255, 255, 255, 0.85);
+        cursor: pointer;
+        padding: 6px 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+        outline: none;
+      }
+      .excaligif-page-btn:hover:not(:disabled) {
+        background: rgba(140, 90, 220, 0.15);
+        border-color: rgba(140, 90, 220, 0.45);
+        color: hsl(270, 75%, 70%);
+      }
+      .excaligif-page-btn:disabled {
+        opacity: 0.25;
+        cursor: not-allowed;
+      }
+      .excaligif-page-info {
+        font-size: 11.5px;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.6);
+        letter-spacing: 0.2px;
       }
 
       .excaligif-icons-footer {
@@ -2433,8 +2486,8 @@
         background: rgba(0, 0, 0, 0.15);
       }
       .excaligif-icons-sidebar.theme--light .excaligif-icon-card {
-        background: rgba(0, 0, 0, 0.01);
-        border-color: rgba(0, 0, 0, 0.03);
+        background: rgba(0, 0, 0, 0.015);
+        border-color: rgba(0, 0, 0, 0.04);
       }
       .excaligif-icons-sidebar.theme--light .excaligif-icon-card span.icon-glyph {
         color: rgba(0, 0, 0, 0.75);
@@ -2443,14 +2496,15 @@
         color: rgba(0, 0, 0, 0.45);
       }
       .excaligif-icons-sidebar.theme--light .excaligif-icon-card:hover {
-        background: rgba(140, 90, 220, 0.05);
+        background: rgba(140, 90, 220, 0.06);
         border-color: rgba(140, 90, 220, 0.3);
+        box-shadow: 0 6px 14px rgba(140, 90, 220, 0.08);
       }
       .excaligif-icons-sidebar.theme--light .excaligif-icon-card:hover span.icon-glyph {
         color: hsl(270, 75%, 45%);
       }
       .excaligif-icons-sidebar.theme--light .excaligif-icon-card:hover span.icon-name {
-        color: rgba(0, 0, 0, 0.8);
+        color: rgba(0, 0, 0, 0.85);
       }
       .excaligif-icons-sidebar.theme--light .excaligif-icons-loading, 
       .excaligif-icons-sidebar.theme--light .excaligif-icons-error, 
@@ -2465,6 +2519,25 @@
         background: rgba(0, 0, 0, 0.02);
         border-top-color: rgba(0, 0, 0, 0.05);
         color: rgba(0, 0, 0, 0.45);
+      }
+
+      /* Light Mode Overrides (Pagination) */
+      .excaligif-icons-sidebar.theme--light .excaligif-icons-pagination {
+        border-top-color: rgba(0, 0, 0, 0.05);
+        background: rgba(0, 0, 0, 0.015);
+      }
+      .excaligif-icons-sidebar.theme--light .excaligif-page-btn {
+        background: rgba(0, 0, 0, 0.02);
+        border-color: rgba(0, 0, 0, 0.05);
+        color: rgba(0, 0, 0, 0.65);
+      }
+      .excaligif-icons-sidebar.theme--light .excaligif-page-btn:hover:not(:disabled) {
+        background: rgba(140, 90, 220, 0.08);
+        border-color: rgba(140, 90, 220, 0.35);
+        color: hsl(270, 75%, 45%);
+      }
+      .excaligif-icons-sidebar.theme--light .excaligif-page-info {
+        color: rgba(0, 0, 0, 0.55);
       }
     `;
     document.head.appendChild(style);
@@ -2531,7 +2604,7 @@
         <div class="excaligif-icons-styles" id="excaligif-icons-styles"></div>
         
         <div class="excaligif-icons-search-container">
-          <span class="search-icon">🔍</span>
+          
           <input type="text" id="excaligif-icons-search" placeholder="Search 4,000+ icons...">
           <button id="excaligif-icons-search-clear">✕</button>
         </div>
@@ -2548,6 +2621,8 @@
           <span>Loading library...</span>
         </div>
       </div>
+
+      <div class="excaligif-icons-pagination" id="excaligif-icons-pagination"></div>
       
       <div class="excaligif-icons-footer" id="excaligif-icons-footer">
         Click to copy & paste, or drag to canvas
@@ -2574,6 +2649,7 @@
     setSymbolsBtn.addEventListener('click', () => {
       if (activeSet === 'symbols') return;
       activeSet = 'symbols';
+      currentPage = 1;
       setSymbolsBtn.classList.add('active');
       setIconsBtn.classList.remove('active');
       activeStyle = 'outlined'; 
@@ -2584,6 +2660,7 @@
     setIconsBtn.addEventListener('click', () => {
       if (activeSet === 'icons') return;
       activeSet = 'icons';
+      currentPage = 1;
       setIconsBtn.classList.add('active');
       setSymbolsBtn.classList.remove('active');
       activeStyle = 'filled'; 
@@ -2596,6 +2673,7 @@
 
     searchInput.addEventListener('input', (e) => {
       searchQuery = e.target.value.toLowerCase();
+      currentPage = 1;
       if (searchQuery) {
         searchClear.classList.add('visible');
       } else {
@@ -2607,6 +2685,7 @@
     searchClear.addEventListener('click', () => {
       searchInput.value = '';
       searchQuery = '';
+      currentPage = 1;
       searchClear.classList.remove('visible');
       renderIconsGrid();
       searchInput.focus();
@@ -2667,6 +2746,7 @@
       btn.addEventListener('click', () => {
         if (activeStyle === sty.id) return;
         activeStyle = sty.id;
+        currentPage = 1;
         container.querySelectorAll('button').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         renderIconsGrid();
@@ -2688,6 +2768,7 @@
 
   function selectCategory(catName) {
     activeCategory = catName;
+    currentPage = 1;
     const container = document.getElementById('excaligif-icons-categories');
     if (!container) return;
 
@@ -2743,11 +2824,18 @@
 
     if (filtered.length === 0) {
       grid.innerHTML = '<div class="excaligif-icons-empty">No matching icons found.</div>';
+      updatePaginationControls(0);
+      const footer = document.getElementById('excaligif-icons-footer');
+      if (footer) footer.textContent = 'Found 0 icons.';
       return;
     }
 
-    const maxRender = 250;
-    const itemsToRender = filtered.slice(0, maxRender);
+    const totalPages = Math.ceil(filtered.length / pageSize) || 1;
+    if (currentPage > totalPages) currentPage = totalPages;
+
+    const startIdx = (currentPage - 1) * pageSize;
+    const endIdx = startIdx + pageSize;
+    const itemsToRender = filtered.slice(startIdx, endIdx);
 
     itemsToRender.forEach((icon) => {
       const card = document.createElement('div');
@@ -2811,7 +2899,7 @@
             showToast("Failed to fetch SVG");
           }
         } catch (err) {
-          console.error("[ExcaliGif] Copy failed:", err);
+          console.error("[Excali Up] Copy failed:", err);
           showToast("Copy failed");
         } finally {
           card.innerHTML = originalContent;
@@ -2821,13 +2909,55 @@
       grid.appendChild(card);
     });
 
+    updatePaginationControls(filtered.length);
+
     const footer = document.getElementById('excaligif-icons-footer');
     if (footer) {
-      if (filtered.length > maxRender) {
-        footer.textContent = `Showing ${maxRender} of ${filtered.length} icons. Refine search.`;
-      } else {
-        footer.textContent = `Found ${filtered.length} icon${filtered.length === 1 ? '' : 's'}. Click or drag.`;
-      }
+      footer.textContent = `Found ${filtered.length} icon${filtered.length === 1 ? '' : 's'}. Click or drag.`;
+    }
+  }
+
+  function updatePaginationControls(totalItems) {
+    const container = document.getElementById('excaligif-icons-pagination');
+    if (!container) return;
+
+    if (totalItems === 0) {
+      container.innerHTML = '';
+      return;
+    }
+
+    const totalPages = Math.ceil(totalItems / pageSize) || 1;
+    if (currentPage > totalPages) currentPage = totalPages;
+
+    container.innerHTML = `
+      <button class="excaligif-page-btn" id="btn-page-prev" ${currentPage === 1 ? 'disabled' : ''}>
+        <span class="material-symbols-outlined" style="font-size: 14px; font-family: 'Material Symbols Outlined' !important;">arrow_back_ios</span>
+      </button>
+      <span class="excaligif-page-info">Page ${currentPage} of ${totalPages}</span>
+      <button class="excaligif-page-btn" id="btn-page-next" ${currentPage === totalPages ? 'disabled' : ''}>
+        <span class="material-symbols-outlined" style="font-size: 14px; font-family: 'Material Symbols Outlined' !important;">arrow_forward_ios</span>
+      </button>
+    `;
+
+    const prevBtn = container.querySelector('#btn-page-prev');
+    const nextBtn = container.querySelector('#btn-page-next');
+
+    if (prevBtn && currentPage > 1) {
+      prevBtn.addEventListener('click', () => {
+        currentPage--;
+        renderIconsGrid();
+        const grid = document.getElementById('excaligif-icons-grid');
+        if (grid) grid.scrollTop = 0;
+      });
+    }
+
+    if (nextBtn && currentPage < totalPages) {
+      nextBtn.addEventListener('click', () => {
+        currentPage++;
+        renderIconsGrid();
+        const grid = document.getElementById('excaligif-icons-grid');
+        if (grid) grid.scrollTop = 0;
+      });
     }
   }
 
@@ -2957,7 +3087,7 @@
       canvas.dispatchEvent(dropEvent);
       showToast("Icon dropped!");
     } catch (err) {
-      console.error("[ExcaliGif] Drop failed:", err);
+      console.error("[Excali Up] Drop failed:", err);
       showToast("Drop failed");
     }
   }
@@ -2983,7 +3113,7 @@
       svgCache.set(cacheKey, text);
       return text;
     } catch (e) {
-      console.error(`[ExcaliGif] SVG fetch failed for ${name}:`, e);
+      console.error(`[Excali Up] SVG fetch failed for ${name}:`, e);
       return null;
     }
   }

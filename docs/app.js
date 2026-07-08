@@ -1,4 +1,4 @@
-// ExcaliGif Main Page Application Logic
+// Excali Up Main Page Application Logic
 import { playSelect, playToggle, playSuccess, playError } from './audio.js';
 
 // Preloaded pixel-art GIFs (Base64 encoded to guarantee offline/local loading)
@@ -202,7 +202,7 @@ document.addEventListener('DOMContentLoaded', () => {
   installBtn.addEventListener('click', (e) => {
     e.preventDefault();
     playSuccess();
-    alert("🌟 ExcaliGif Installed! (Simulated - follow installation steps below to load unpacked extension)");
+    alert("🌟 Excali Up Installed! (Simulated - follow installation steps below to load unpacked extension)");
   });
 
   demoBtn.addEventListener('click', (e) => {

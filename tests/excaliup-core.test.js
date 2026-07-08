@@ -1,7 +1,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 
-const core = require('../excaligif-core.js');
+const core = require('../excaliup-core.js');
 
 test('normalizes settings and rejects invalid values', () => {
   assert.deepEqual(core.normalizeSettings({

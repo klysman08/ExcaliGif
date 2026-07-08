@@ -1,10 +1,10 @@
 {
   "manifest_version": 3,
-  "name": "ExcaliGif: Animated GIFs for Excalidraw",
-  "short_name": "ExcaliGif",
+  "name": "Excali Up: Animated GIFs and Icons for Excalidraw",
+  "short_name": "Excali Up",
   "version": "3.0.0",
-  "description": "Play animated GIFs and add customizable motion effects to lines and arrows directly in Excalidraw.",
-  "homepage_url": "https://excaligif.astrofocus.app/",
+  "description": "Play animated GIFs, add customizable motion effects to lines/arrows, and search & insert Google Material Icons directly inside Excalidraw.",
+  "homepage_url": "https://excaliup.astrofocus.app/",
   "icons": {
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",
@@ -30,7 +30,7 @@
     },
     {
       "matches": ["https://excalidraw.com/*"],
-      "js": ["omggif.js", "excaligif-core.js", "inject.js"],
+      "js": ["omggif.js", "excaliup-core.js", "inject.js"],
       "run_at": "document_end",
       "world": "MAIN"
     }
