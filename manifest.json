@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Excali Up: Animated GIFs and Icons for Excalidraw",
+  "name": "Excali Up: Motion effects, GIFs and Icons for Excalidraw",
   "short_name": "Excali Up",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "Play animated GIFs, add motion effects to lines and arrows, and insert Google Material Icons directly inside Excalidraw.",
   "homepage_url": "https://excaliup.astrofocus.app/",
   "icons": {

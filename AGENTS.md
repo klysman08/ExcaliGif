@@ -13,6 +13,7 @@ No dependency installation or compilation step is required.
 - `python -m json.tool manifest.json > $null` validates manifest JSON in PowerShell.
 - `node --test` runs the dependency-free runtime unit tests.
 - `python generate_icons.py` regenerates all PNG sizes under `icons/`.
+- `python package.py` packages the extension zip file into the `dist/` directory.
 - `python -m http.server 8000 --directory docs` serves the showcase at `http://localhost:8000`.
 - To develop the extension, load this repository unpacked from `chrome://extensions`. Reload it and Excalidraw after changes.
 
