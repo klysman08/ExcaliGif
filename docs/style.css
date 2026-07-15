@@ -53,6 +53,34 @@ body.dark-mode {
   --color-grid-line: #2D2B2A;
 }
 
+/* Dark Mode Text Contrast Corrections */
+body.dark-mode .btn-retro.primary,
+body.dark-mode .nav-btn,
+body.dark-mode .sim-pill-group button.active,
+body.dark-mode .sim-toolbar-btn.active,
+body.dark-mode .sim-iconify-tabs button.active,
+body.dark-mode .step-number,
+body.dark-mode .pixel-badge,
+body.dark-mode .sim-iconify-header,
+body.dark-mode .sim-iconify-close {
+  color: #1A1918 !important;
+}
+
+body.dark-mode .sim-status-banner.connected {
+  background-color: #1D3025;
+  color: #81B8AC;
+}
+
+body.dark-mode .sim-status-banner.disconnected {
+  background-color: #3B1E1C;
+  color: #F8B4B4;
+}
+
+body.dark-mode .sim-status-banner.loading {
+  background-color: #302617;
+  color: #F5D393;
+}
+
 /* Reset and Global Styles */
 * {
   box-sizing: border-box;
