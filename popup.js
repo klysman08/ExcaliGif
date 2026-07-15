@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const statusBanner = document.getElementById('statusBanner');
   const statusText = document.getElementById('statusText');
   const gifToggle = document.getElementById('gifToggle');
+  const animatedSvgToggle = document.getElementById('animatedSvgToggle');
   const gifCount = document.getElementById('gifCount');
   const engineStatus = document.getElementById('engineStatus');
   const versionLabel = document.getElementById('versionLabel');
@@ -46,17 +47,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     statusText.textContent = status.connected ? "Excalidraw Connected" : "Canvas Loading...";
     
     gifToggle.disabled = !status.connected;
+    animatedSvgToggle.disabled = !status.connected;
     flowToggle.disabled = !status.connected;
     gifSpeed.disabled = !status.connected;
 
     // Load current settings from response or use defaults
     const settings = status.settings || {
       gifsEnabled: status.enabled,
+      animatedSvgsEnabled: true,
       flowEnabled: true,
       gifSpeed: 1
     };
 
     gifToggle.checked = settings.gifsEnabled;
+    animatedSvgToggle.checked = settings.animatedSvgsEnabled !== false;
     flowToggle.checked = settings.flowEnabled;
     gifSpeed.value = settings.gifSpeed || 1;
 
@@ -64,12 +68,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     gifCount.textContent = (status.activeGifCount || 0) + (status.activeAnimatedSvgCount || 0);
     document.getElementById('animatedCount').textContent = status.animatedElementCount || 0;
-    engineStatus.textContent = settings.gifsEnabled || settings.flowEnabled ? "Running" : "Paused";
+    engineStatus.textContent = settings.gifsEnabled || settings.animatedSvgsEnabled || settings.flowEnabled ? "Running" : "Paused";
     
     // Broadcast setting changes
     const updateSettings = () => {
       const currentSettings = {
         gifsEnabled: gifToggle.checked,
+        animatedSvgsEnabled: animatedSvgToggle.checked,
         flowEnabled: flowToggle.checked,
         gifSpeed: parseFloat(gifSpeed.value)
       };
@@ -77,11 +82,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       gifSettingsGroup.style.display = currentSettings.gifsEnabled ? 'flex' : 'none';
       
       chrome.tabs.sendMessage(tab.id, { action: "updateSettings", settings: currentSettings }, (response) => {
-        engineStatus.textContent = currentSettings.gifsEnabled || currentSettings.flowEnabled ? "Running" : "Paused";
+        engineStatus.textContent = currentSettings.gifsEnabled || currentSettings.animatedSvgsEnabled || currentSettings.flowEnabled ? "Running" : "Paused";
       });
     };
 
     gifToggle.onchange = updateSettings;
+    animatedSvgToggle.onchange = updateSettings;
     flowToggle.onchange = updateSettings;
     gifSpeed.onchange = updateSettings;
   }
@@ -92,6 +98,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     gifToggle.disabled = true;
     gifToggle.checked = false;
+    animatedSvgToggle.disabled = true;
+    animatedSvgToggle.checked = false;
     flowToggle.disabled = true;
     flowToggle.checked = false;
     gifSpeed.disabled = true;

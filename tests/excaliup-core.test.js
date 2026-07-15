@@ -6,14 +6,18 @@ const core = require('../excaliup-core.js');
 test('normalizes settings and rejects invalid values', () => {
   assert.deepEqual(core.normalizeSettings({
     gifsEnabled: false,
+    animatedSvgsEnabled: false,
     flowEnabled: 'yes',
     gifSpeed: 99,
     ignored: true
   }), {
     gifsEnabled: false,
+    animatedSvgsEnabled: false,
     flowEnabled: true,
     gifSpeed: 2
   });
+
+  assert.equal(core.normalizeSettings({}).animatedSvgsEnabled, true);
 });
 
 test('normalizes element configuration enums and ranges', () => {
@@ -46,6 +50,25 @@ test('detects native and CSS animated SVG markup', () => {
   assert.equal(core.isAnimatedSvgMarkup('<svg><style>@keyframes spin { to { opacity: 0 } } path { animation: spin 1s infinite; }</style></svg>'), true);
   assert.equal(core.isAnimatedSvgMarkup('<svg><path d="M0 0h10v10z" /></svg>'), false);
   assert.equal(core.isAnimatedSvgMarkup('<animate attributeName="opacity" />'), false);
+});
+
+test('sizes inserted SVG icons for a 100% canvas while preserving aspect ratio', () => {
+  const square = core.sizeSvgForCanvas('<svg width="1em" height="1em" viewBox="0 0 24 24"><path /></svg>');
+  assert.match(square, /width="96" height="96"/);
+  assert.doesNotMatch(square, /1em/);
+
+  const wide = core.sizeSvgForCanvas('<svg viewBox="0 0 32 16"><path /></svg>');
+  assert.match(wide, /width="96" height="48"/);
+
+  const tall = core.sizeSvgForCanvas('<svg viewBox="0 0 16 32"><path /></svg>');
+  assert.match(tall, /width="48" height="96"/);
+
+  assert.deepEqual(core.getSvgIntrinsicSize(square), { width: 96, height: 96 });
+  assert.deepEqual(core.getSvgIntrinsicSize(wide), { width: 96, height: 48 });
+  assert.deepEqual(core.getSvgIntrinsicSize('<svg width="1em" height="1em" viewBox="0 0 24 12" />'), {
+    width: 96,
+    height: 48
+  });
 });
 
 test('builds rotated path points around the element center', () => {

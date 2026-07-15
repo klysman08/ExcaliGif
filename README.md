@@ -1,21 +1,28 @@
 # Excali Up
 
-> **Per-Element Animated GIF, Custom Motion Flows, and the Iconify Library for Excalidraw**
+> **Animated GIFs and SVGs, Custom Motion Flows, and the Iconify Library for Excalidraw**
 
-**Excali Up** is a feature-rich browser extension that brings your Excalidraw canvas to life. It provides full real-time playback for animated GIF files, a selective in-canvas floating toolbar that lets you choose exactly which lines or arrows to animate, and an Iconify-powered sidebar for browsing hundreds of open-source icon packs.
+**Excali Up 4.0.0** brings animated GIF and SVG playback, per-element line and arrow motion, and a complete Iconify-powered icon library directly into Excalidraw. Browse, filter, favorite, and insert icons without leaving the canvas.
+
+## Version 4.0.0
+
+Version 4 adds the complete Iconify library with global search, pack/category/tag filters, persistent favorites, the `B` keyboard shortcut, canvas-ready icon sizing, and a dedicated animated SVG category. GIF and SVG playback can be controlled independently from the extension popup.
 
 ---
 
 ## Features
 
-### 1. Complete Iconify Library Integration (New in v3.0)
+### 1. Complete Iconify Library Integration (New in v4.0)
 Search and browse Iconify's open-source icon sets directly inside Excalidraw via a dedicated, glassmorphic toggle sidebar panel:
 * **All available packs**: Browse more than 200 collections, including Material, Lucide, Tabler, Phosphor, Font Awesome, logos, emoji, and thematic sets.
 * **Library filters**: Narrow packs by collection category and tags such as animated, stroke, precise shapes, and padding.
 * **Animated SVG category**: Browse Iconify's animated collections separately and insert their native SVG animations onto the canvas.
+* **Favorite icons**: Star frequently used icons and reopen them from the persistent Favorites view.
+* **Quick access**: Press `B` outside text fields to open or close the Iconify Library.
 * **Pagination system**: Renders 96 items per page to prevent browser rendering bottlenecks and keep canvas performance high.
 * **Clean SVG click-to-copy**: Copying an icon fetches its clean vector SVG directly, automatically converting hardcoded fills to current colors for theme compatibility, and pastes it onto the active canvas.
 * **Drag-and-drop support**: Drag any icon directly from the sidebar grid and drop it exactly at your cursor position on the Excalidraw canvas.
+* **Canvas-ready sizing**: Inserted icons use a readable 96px maximum dimension at 100% zoom while preserving their original aspect ratio.
 * **Global search**: Search across more than 300,000 icons, or search within one selected pack.
 * **Dynamic theme matching**: The sidebar automatically transitions between light and dark modes to synchronize with Excalidraw's theme state.
 
@@ -47,7 +54,7 @@ Select any arrow or line element on the canvas to reveal the Excali Up floating 
 ### 5. Real-time GIF and Animated SVG Playback
 * Drag and drop any GIF file to watch it render loops on the board.
 * Insert an animated Iconify SVG and keep its native SMIL or CSS animation playing on the Excalidraw canvas.
-* Control playback speed multipliers (0.5x, 1x, 1.5x, 2x) from the extension popup dashboard.
+* Enable GIF and animated SVG playback independently from the extension popup dashboard, with GIF speed multipliers of 0.5x, 1x, 1.5x, or 2x.
 
 ---
 
@@ -66,11 +73,11 @@ Select any arrow or line element on the canvas to reveal the Excali Up floating 
 Excali Up injects a script into the page context (MAIN world) to access the underlying canvas and react context:
 
 1. **React Fiber Hooking**: It traverses the DOM starting from `.excalidraw__canvas.interactive` to find its React Fiber node (`__reactFiber$...`), climbing up to locate the active Excalidraw stateNode which manages the canvas state.
-2. **Image Cache Interception**: It hooks the Excalidraw `imageCache.set` method. When an image with the MIME type `image/gif` is stored, Excali Up intercepts it.
+2. **Image Cache Interception**: It hooks the Excalidraw `imageCache.set` method to identify GIF and animated SVG image entries.
 3. **Animated Media Runtime**: GIF bytes are decoded frame-by-frame with `omggif.js`. Animated SVGs run natively in isolated DOM overlays synchronized with their Excalidraw image elements, avoiding continuous scene redraws while preserving SMIL and CSS timelines.
 4. **Active Canvas Swap**: The static `HTMLImageElement` in Excalidraw's cache is replaced with a single dynamic `HTMLCanvasElement` managed by the extension.
 5. **Floating Toolbar & Canvas Overlay**: The extension overlays a secondary canvas aligned with the interactive canvas. Selecting an element triggers the DOM injection of the floating toolbar panel. Real-time offsets are recalculated per frame on the overlay.
-6. **State Persistence**: Element settings (style, speed, size, spacing, glow, direction) are mapped to element IDs and persisted in `localStorage`. They are automatically loaded when refreshing the page. Deleted elements are cleaned up from the store.
+6. **State Persistence**: Element settings and Iconify favorites are persisted in `localStorage`. They are automatically loaded when refreshing the page. Deleted elements are cleaned up from the animation store.
 7. **Iconify Icon Library**: A locally packaged Iconify web component renders previews, while Iconify's collection, search, and SVG APIs provide pack metadata, filtered results, and clean vectors for copy and drag operations.
 
 ---
@@ -78,6 +85,10 @@ Excali Up injects a script into the page context (MAIN world) to access the unde
 ## Showcase and Demo Page
 
 To experience a simulator of this extension and play around with retro sound effects and pixel styles, visit the [Excali Up website](https://excaliup.astrofocus.app/).
+
+## Support
+
+Follow development on [GitHub](https://github.com/klysman08) or [buy me a coffee](https://donate.stripe.com/4gMdRa7XW6dt8Ph9KX9Ve01).
 
 ---
 

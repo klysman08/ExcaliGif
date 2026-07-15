@@ -6,7 +6,7 @@ const vm = require('node:vm');
 
 const core = require('../excaliup-core.js');
 
-test('injected runtime boots without a canvas and keeps GIF and flow settings independent', () => {
+test('injected runtime boots without a canvas and keeps animation settings independent', () => {
   const listeners = new Map();
   const dispatchedEvents = [];
   const storedValues = new Map();
@@ -71,7 +71,7 @@ test('injected runtime boots without a canvas and keeps GIF and flow settings in
   vm.runInNewContext(source, context, { filename: 'inject.js' });
 
   listeners.get('ExcaliGifUpdateSettings')({
-    detail: { gifsEnabled: false, flowEnabled: true, gifSpeed: 99 }
+    detail: { gifsEnabled: false, animatedSvgsEnabled: true, flowEnabled: true, gifSpeed: 99 }
   });
   listeners.get('ExcaliGifQueryStatus')();
 
@@ -80,6 +80,7 @@ test('injected runtime boots without a canvas and keeps GIF and flow settings in
   assert.equal(response.detail.enabled, false);
   assert.deepEqual({ ...response.detail.settings }, {
     gifsEnabled: false,
+    animatedSvgsEnabled: true,
     flowEnabled: true,
     gifSpeed: 2
   });

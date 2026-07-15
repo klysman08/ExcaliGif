@@ -10,6 +10,7 @@ test('Iconify is packaged locally and the picker supports all collections', () =
   const injectSource = fs.readFileSync(path.join(root, 'inject.js'), 'utf8');
 
   assert.ok(mainWorldScript);
+  assert.equal(manifest.version, '4.0.0');
   assert.equal(mainWorldScript.js[0], 'vendor/iconify-icon.min.js');
   assert.ok(fs.existsSync(path.join(root, 'vendor', 'iconify-icon.min.js')));
   assert.match(injectSource, /https:\/\/api\.iconify\.design\/collections/);
@@ -24,6 +25,14 @@ test('Iconify is packaged locally and the picker supports all collections', () =
   assert.match(injectSource, /attachShadow\(\{ mode: 'closed' \}\)/);
   assert.match(injectSource, /animation\.setAttribute\('repeatCount', 'indefinite'\)/);
   assert.match(injectSource, /animation-iteration-count: infinite !important/);
+  assert.match(injectSource, /excaliup_icon_favorites/);
+  assert.match(injectSource, /data-view="favorites"/);
+  assert.match(injectSource, /class="excaligif-icon-favorite/);
+  assert.match(injectSource, /Core\.sizeSvgForCanvas\(cleanedSvg, 96\)/);
+  assert.match(injectSource, /Core\.getSvgIntrinsicSize\(markup, 96\)/);
+  assert.match(injectSource, /e\.key\.toLowerCase\(\) === 'b'/);
+  assert.match(injectSource, /class="excaligif-icons-coffee"/);
+  assert.match(injectSource, /donate\.stripe\.com\/4gMdRa7XW6dt8Ph9KX9Ve01/);
   assert.match(injectSource, /pauseAnimations/);
   assert.match(injectSource, /unpauseAnimations/);
   assert.doesNotMatch(injectSource, /this\.nextFrameAt = now \+ \(1000 \/ 30\)/);

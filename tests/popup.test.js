@@ -6,10 +6,12 @@ const vm = require('node:vm');
 
 test('popup reads the manifest version and reports flow-only runtime as active', async () => {
   const elements = new Map();
+  const messages = [];
   for (const id of [
     'statusBanner',
     'statusText',
     'gifToggle',
+    'animatedSvgToggle',
     'gifCount',
     'engineStatus',
     'versionLabel',
@@ -34,7 +36,7 @@ test('popup reads the manifest version and reports flow-only runtime as active',
     runtime: {
       lastError: null,
       getManifest() {
-        return { version: '2.0.0' };
+        return { version: '4.0.0' };
       }
     },
     tabs: {
@@ -42,6 +44,7 @@ test('popup reads the manifest version and reports flow-only runtime as active',
         return [{ id: 1, url: 'https://excalidraw.com/' }];
       },
       sendMessage(tabId, message, callback) {
+        messages.push(message);
         if (message.action === 'getStatus') {
           callback({
             connected: true,
@@ -49,7 +52,7 @@ test('popup reads the manifest version and reports flow-only runtime as active',
             activeGifCount: 0,
             activeAnimatedSvgCount: 2,
             animatedElementCount: 2,
-            settings: { gifsEnabled: false, flowEnabled: true, gifSpeed: 1 }
+            settings: { gifsEnabled: false, animatedSvgsEnabled: true, flowEnabled: true, gifSpeed: 1 }
           });
         } else {
           callback({ status: 'forwarded' });
@@ -62,10 +65,34 @@ test('popup reads the manifest version and reports flow-only runtime as active',
   vm.runInNewContext(source, { chrome, console, document }, { filename: 'popup.js' });
   await onReady();
 
-  assert.equal(elements.get('versionLabel').textContent, 'v2.0.0');
+  assert.equal(elements.get('versionLabel').textContent, 'v4.0.0');
   assert.equal(elements.get('gifToggle').checked, false);
+  assert.equal(elements.get('animatedSvgToggle').checked, true);
   assert.equal(elements.get('flowToggle').checked, true);
   assert.equal(elements.get('gifSettingsGroup').style.display, 'none');
   assert.equal(elements.get('gifCount').textContent, 2);
   assert.equal(elements.get('engineStatus').textContent, 'Running');
+
+  elements.get('animatedSvgToggle').checked = false;
+  elements.get('animatedSvgToggle').onchange();
+  assert.deepEqual({ ...messages.at(-1).settings }, {
+    gifsEnabled: false,
+    animatedSvgsEnabled: false,
+    flowEnabled: true,
+    gifSpeed: 1
+  });
+});
+
+test('popup includes a safe Buy me a coffee link', () => {
+  const html = fs.readFileSync(path.join(__dirname, '..', 'popup.html'), 'utf8');
+  assert.match(html, /https:\/\/donate\.stripe\.com\/4gMdRa7XW6dt8Ph9KX9Ve01/);
+  assert.match(html, /target="_blank"/);
+  assert.match(html, /rel="noopener noreferrer"/);
+});
+
+test('popup shows current usage instructions and the author GitHub link', () => {
+  const html = fs.readFileSync(path.join(__dirname, '..', 'popup.html'), 'utf8');
+  assert.match(html, /Press <b>B<\/b> to open the Iconify Library/);
+  assert.match(html, /https:\/\/github\.com\/klysman08/);
+  assert.doesNotMatch(html, /Antigravity pair-programming/);
 });

@@ -26,6 +26,7 @@
   let activePrefix = '';
   let activeCategory = '';
   let activeTag = '';
+  let iconView = 'browse';
   let searchQuery = '';
   let currentPage = 1;
   const pageSize = 96;
@@ -34,6 +35,28 @@
   let iconRequestId = 0;
   let iconCollectionsPromise = null;
   let iconFetchController = null;
+  const favoriteIcons = new Set();
+
+  try {
+    const savedFavorites = JSON.parse(localStorage.getItem('excaliup_icon_favorites') || '[]');
+    if (Array.isArray(savedFavorites)) {
+      for (const iconName of savedFavorites) {
+        if (typeof iconName === 'string' && /^[a-z0-9]+(?:-[a-z0-9]+)*:[a-z0-9]+(?:-[a-z0-9]+)*$/.test(iconName)) {
+          favoriteIcons.add(iconName);
+        }
+      }
+    }
+  } catch (error) {
+    console.error('[Excali Up] Error loading favorite icons:', error);
+  }
+
+  function saveFavoriteIcons() {
+    try {
+      localStorage.setItem('excaliup_icon_favorites', JSON.stringify([...favoriteIcons]));
+    } catch (error) {
+      console.error('[Excali Up] Error saving favorite icons:', error);
+    }
+  }
 
   let overlayAnimationFrameId = null;
   let svgOverlayTimer = null;
@@ -554,7 +577,7 @@
 
   function updateAnimatedSvgOverlay() {
     svgOverlayTimer = null;
-    if (document.hidden || !currentSettings.gifsEnabled || !currentApp || !activeAnimatedSvgs.size) return;
+    if (document.hidden || !currentSettings.animatedSvgsEnabled || !currentApp || !activeAnimatedSvgs.size) return;
 
     const overlay = ensureAnimatedSvgOverlay();
     if (!overlay) return;
@@ -607,7 +630,7 @@
   }
 
   function scheduleAnimatedSvgOverlay() {
-    if (!svgOverlayTimer && !document.hidden && currentSettings.gifsEnabled && currentApp) {
+    if (!svgOverlayTimer && !document.hidden && currentSettings.animatedSvgsEnabled && currentApp) {
       svgOverlayTimer = setTimeout(updateAnimatedSvgOverlay, 0);
     }
   }
@@ -663,11 +686,12 @@
           return;
         }
 
+        const intrinsicSize = Core.getSvgIntrinsicSize(markup, 96);
         const safeMarkup = sanitizeAnimatedSvgMarkup(markup);
         if (this.isDestroyed || generation !== this.decodeGeneration) return;
 
-        const width = this.originalImage && this.originalImage.naturalWidth || 1;
-        const height = this.originalImage && this.originalImage.naturalHeight || 1;
+        const width = intrinsicSize.width;
+        const height = intrinsicSize.height;
         const transparentCanvas = document.createElement('canvas');
         transparentCanvas.width = width;
         transparentCanvas.height = height;
@@ -681,7 +705,7 @@
         this.safeMarkup = safeMarkup;
         this.transparentCanvas = transparentCanvas;
         this.isLoaded = true;
-        if (currentSettings.gifsEnabled) this.start();
+        if (currentSettings.animatedSvgsEnabled) this.start();
       } catch (error) {
         if (error.name !== 'AbortError') {
           console.error(`[Excali Up] Animated SVG detection failed for ${this.fileId}:`, error);
@@ -1202,18 +1226,23 @@
       for (const player of activeGifs.values()) {
         if (player.isLoaded && !player.isPlaying) player.start();
       }
-      for (const player of activeAnimatedSvgs.values()) {
-        if (player.isLoaded && !player.isPlaying) player.start();
-      }
       scheduleGifTick();
     } else if (!currentSettings.gifsEnabled || document.hidden) {
       for (const player of activeGifs.values()) {
         if (player.isPlaying) player.stop();
       }
+      stopGifScheduler();
+    }
+
+    if (currentSettings.animatedSvgsEnabled && !document.hidden) {
+      for (const player of activeAnimatedSvgs.values()) {
+        if (player.isLoaded && !player.isPlaying) player.start();
+      }
+      scheduleAnimatedSvgOverlay();
+    } else {
       for (const player of activeAnimatedSvgs.values()) {
         if (player.isPlaying) player.stop();
       }
-      stopGifScheduler();
       stopAnimatedSvgOverlayLoop();
     }
 
@@ -2551,6 +2580,33 @@
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
       }
+      .excaligif-icons-header-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .excaligif-icons-coffee {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 6px 8px;
+        border: 1px solid rgba(245, 158, 66, 0.35);
+        border-radius: 8px;
+        background: rgba(245, 158, 66, 0.08);
+        color: hsl(35, 90%, 72%);
+        font-size: 10px;
+        font-weight: 700;
+        text-decoration: none;
+        white-space: nowrap;
+        transition: background 0.15s ease, border-color 0.15s ease;
+      }
+      .excaligif-icons-coffee:hover {
+        background: rgba(245, 158, 66, 0.16);
+        border-color: rgba(245, 158, 66, 0.6);
+      }
+      .excaligif-icons-coffee iconify-icon {
+        font-size: 13px;
+      }
       .excaligif-icons-close {
         background: none;
         border: none;
@@ -2642,6 +2698,18 @@
         background: rgba(140, 90, 220, 0.2);
         border: 1px solid rgba(140, 90, 220, 0.35);
         color: hsl(270, 75%, 70%);
+      }
+      #excaligif-icons-favorite-count {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 18px;
+        height: 18px;
+        margin-left: 4px;
+        padding: 0 5px;
+        border-radius: 9px;
+        background: rgba(255, 255, 255, 0.08);
+        font-size: 10px;
       }
 
       .excaligif-icons-styles {
@@ -2808,6 +2876,40 @@
       .excaligif-icon-card:active {
         cursor: grabbing;
       }
+      .excaligif-icon-favorite {
+        position: absolute;
+        top: 4px;
+        right: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+        padding: 0;
+        border: none;
+        border-radius: 7px;
+        background: transparent;
+        color: rgba(255, 255, 255, 0.3);
+        cursor: pointer;
+        opacity: 0;
+        transition: opacity 0.15s ease, color 0.15s ease, background 0.15s ease;
+        z-index: 1;
+      }
+      .excaligif-icon-card:hover .excaligif-icon-favorite,
+      .excaligif-icon-favorite:focus-visible,
+      .excaligif-icon-favorite.active {
+        opacity: 1;
+      }
+      .excaligif-icon-favorite:hover {
+        color: hsl(45, 95%, 65%);
+        background: rgba(255, 255, 255, 0.08);
+      }
+      .excaligif-icon-favorite.active {
+        color: hsl(45, 95%, 60%);
+      }
+      .excaligif-icon-favorite iconify-icon {
+        font-size: 15px;
+      }
       .excaligif-icon-card span.icon-name {
         font-size: 9.5px;
         line-height: 1.2;
@@ -2946,6 +3048,15 @@
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
       }
+      .excaligif-icons-sidebar.theme--light .excaligif-icons-coffee {
+        background: rgba(210, 120, 30, 0.06);
+        border-color: rgba(190, 100, 20, 0.25);
+        color: hsl(30, 75%, 38%);
+      }
+      .excaligif-icons-sidebar.theme--light .excaligif-icons-coffee:hover {
+        background: rgba(210, 120, 30, 0.12);
+        border-color: rgba(190, 100, 20, 0.45);
+      }
       .excaligif-icons-sidebar.theme--light .excaligif-icons-close {
         color: rgba(0, 0, 0, 0.4);
       }
@@ -3047,6 +3158,14 @@
       .excaligif-icons-sidebar.theme--light .excaligif-icon-card span.icon-name {
         color: rgba(0, 0, 0, 0.45);
       }
+      .excaligif-icons-sidebar.theme--light .excaligif-icon-favorite {
+        color: rgba(0, 0, 0, 0.3);
+      }
+      .excaligif-icons-sidebar.theme--light .excaligif-icon-favorite:hover,
+      .excaligif-icons-sidebar.theme--light .excaligif-icon-favorite.active {
+        color: hsl(40, 90%, 42%);
+        background: rgba(0, 0, 0, 0.05);
+      }
       .excaligif-icons-sidebar.theme--light .excaligif-icon-card:hover {
         background: rgba(140, 90, 220, 0.06);
         border-color: rgba(140, 90, 220, 0.3);
@@ -3132,7 +3251,7 @@
     sidebarButton = document.createElement('button');
     sidebarButton.id = 'excaligif-icons-btn';
     sidebarButton.className = 'excaligif-icons-btn';
-    sidebarButton.setAttribute('title', 'Iconify Icon Library');
+    sidebarButton.setAttribute('title', 'Iconify Icon Library (B)');
     sidebarButton.innerHTML = '<iconify-icon icon="lucide:grid-3x3" aria-hidden="true"></iconify-icon>';
     excalidraw.appendChild(sidebarButton);
 
@@ -3143,10 +3262,22 @@
     sidebarElement.innerHTML = `
       <div class="excaligif-icons-header">
         <h3>Iconify Library</h3>
+        <div class="excaligif-icons-header-actions">
+          <a class="excaligif-icons-coffee" href="https://donate.stripe.com/4gMdRa7XW6dt8Ph9KX9Ve01" target="_blank" rel="noopener noreferrer">
+            <iconify-icon icon="lucide:coffee" aria-hidden="true"></iconify-icon>
+            <span>Buy me a coffee</span>
+          </a>
         <button class="excaligif-icons-close" id="excaligif-icons-close">✕</button>
+        </div>
       </div>
       
       <div class="excaligif-icons-controls">
+        <div class="excaligif-icons-segmented" id="excaligif-icons-view">
+          <button type="button" class="active" data-view="browse" aria-pressed="true">All icons</button>
+          <button type="button" data-view="favorites" aria-pressed="false">
+            Favorites <span id="excaligif-icons-favorite-count">0</span>
+          </button>
+        </div>
         <div class="excaligif-icons-search-container">
           <iconify-icon icon="lucide:search" aria-hidden="true"></iconify-icon>
           <input type="text" id="excaligif-icons-search" placeholder="Search 300,000+ icons...">
@@ -3202,6 +3333,19 @@
     const packSelect = sidebarElement.querySelector('#excaligif-icons-pack');
     const categorySelect = sidebarElement.querySelector('#excaligif-icons-category');
     const tagSelect = sidebarElement.querySelector('#excaligif-icons-tag');
+    const viewButtons = sidebarElement.querySelectorAll('#excaligif-icons-view button');
+
+    viewButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        const nextView = button.dataset.view;
+        if (nextView === iconView) return;
+        clearTimeout(iconSearchTimer);
+        iconView = nextView;
+        currentPage = 1;
+        updateIconViewControls();
+        loadIconResults();
+      });
+    });
 
     searchInput.addEventListener('input', (e) => {
       searchQuery = e.target.value.trim();
@@ -3251,16 +3395,55 @@
     });
 
     // Arrow navigation & general keyboard handling
-    document.addEventListener('keydown', onKeyDown);
+    document.addEventListener('keydown', onKeyDown, true);
 
+    updateIconViewControls();
     updateSidebarTheme();
   }
 
+  function updateIconViewControls() {
+    if (!sidebarElement) return;
+    const isFavorites = iconView === 'favorites';
+    for (const button of sidebarElement.querySelectorAll('#excaligif-icons-view button')) {
+      const isActive = button.dataset.view === iconView;
+      button.classList.toggle('active', isActive);
+      button.setAttribute('aria-pressed', String(isActive));
+    }
+    const favoriteCount = sidebarElement.querySelector('#excaligif-icons-favorite-count');
+    if (favoriteCount) favoriteCount.textContent = String(favoriteIcons.size);
+    const filters = sidebarElement.querySelector('.excaligif-icons-filters');
+    if (filters) filters.style.display = isFavorites ? 'none' : 'grid';
+    const searchInput = sidebarElement.querySelector('#excaligif-icons-search');
+    if (searchInput) {
+      searchInput.placeholder = isFavorites ? 'Search favorite icons...' : 'Search 300,000+ icons...';
+    }
+  }
+
   function onKeyDown(e) {
-    if (!sidebarElement || !sidebarElement.classList.contains('open')) return;
-    if (e.key === 'Escape') {
+    if (!sidebarElement) return;
+    if (e.key === 'Escape' && sidebarElement.classList.contains('open')) {
       e.preventDefault();
       closeSidebar();
+      return;
+    }
+
+    const target = e.target;
+    const isEditable = target && (
+      /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName) ||
+      target.isContentEditable ||
+      (typeof target.closest === 'function' && target.closest('[contenteditable="true"]'))
+    );
+    if (
+      e.key.toLowerCase() === 'b' &&
+      !e.repeat &&
+      !e.ctrlKey &&
+      !e.metaKey &&
+      !e.altKey &&
+      !isEditable
+    ) {
+      e.preventDefault();
+      e.stopPropagation();
+      toggleSidebar();
     }
   }
 
@@ -3337,6 +3520,15 @@
     };
   }
 
+  function getFilteredFavoriteIconNames() {
+    const normalizedQuery = searchQuery.trim().toLowerCase();
+    return [...favoriteIcons].filter(iconName => {
+      if (!normalizedQuery) return true;
+      return iconName.toLowerCase().includes(normalizedQuery) ||
+        iconName.replace(/[-_:]/g, ' ').toLowerCase().includes(normalizedQuery);
+    });
+  }
+
   async function loadIconCollections() {
     if (iconCollections) return loadIconResults();
     if (iconCollectionsPromise) return iconCollectionsPromise;
@@ -3376,7 +3568,9 @@
       let iconNames = [];
       const matchingCollections = getMatchingCollections();
 
-      if (searchQuery) {
+      if (iconView === 'favorites') {
+        iconNames = getFilteredFavoriteIconNames();
+      } else if (searchQuery) {
         const url = new URL('https://api.iconify.design/search');
         url.searchParams.set('query', searchQuery);
         url.searchParams.set('limit', '999');
@@ -3437,7 +3631,9 @@
     grid.innerHTML = '';
 
     if (visibleIcons.length === 0) {
-      grid.innerHTML = '<div class="excaligif-icons-empty">No matching icons found.</div>';
+      grid.innerHTML = iconView === 'favorites'
+        ? '<div class="excaligif-icons-empty"><iconify-icon icon="lucide:star" style="font-size:28px"></iconify-icon><span>No favorite icons yet.<br>Use the star on any icon to save it here.</span></div>'
+        : '<div class="excaligif-icons-empty">No matching icons found.</div>';
       updatePaginationControls(0);
       const footer = document.getElementById('excaligif-icons-footer');
       if (footer) footer.textContent = 'Found 0 icons.';
@@ -3459,11 +3655,41 @@
       card.setAttribute('title', `${icon.name}\n${collectionName}\nClick to copy & paste\nDrag to canvas`);
 
       card.innerHTML = `
+        <button type="button" class="excaligif-icon-favorite${favoriteIcons.has(icon.icon) ? ' active' : ''}" title="${favoriteIcons.has(icon.icon) ? 'Remove from favorites' : 'Add to favorites'}" aria-label="${favoriteIcons.has(icon.icon) ? 'Remove from favorites' : 'Add to favorites'}">
+          <iconify-icon icon="lucide:star" aria-hidden="true"></iconify-icon>
+        </button>
         <iconify-icon class="excaligif-icon-glyph" icon="${icon.icon}" aria-hidden="true"></iconify-icon>
         <span class="icon-name">${icon.name.replace(/[-_]/g, ' ')}</span>
       `;
 
+      const favoriteButton = card.querySelector('.excaligif-icon-favorite');
+      favoriteButton.setAttribute('draggable', 'false');
+      favoriteButton.addEventListener('pointerdown', event => event.stopPropagation());
+      favoriteButton.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        if (favoriteIcons.has(icon.icon)) {
+          favoriteIcons.delete(icon.icon);
+          showToast(`"${icon.name}" removed from favorites`);
+        } else {
+          favoriteIcons.add(icon.icon);
+          showToast(`"${icon.name}" added to favorites`);
+        }
+        saveFavoriteIcons();
+        updateIconViewControls();
+        if (iconView === 'favorites') {
+          visibleIcons = getFilteredFavoriteIconNames()
+            .map(createIconResult)
+            .filter(Boolean);
+        }
+        renderIconsGrid();
+      });
+
       card.addEventListener('dragstart', (e) => {
+        if (e.target.closest && e.target.closest('.excaligif-icon-favorite')) {
+          e.preventDefault();
+          return;
+        }
         isDraggingIcon = true;
         draggingIconData = { name: icon.name, icon: icon.icon };
         e.dataTransfer.effectAllowed = 'copy';
@@ -3478,7 +3704,6 @@
       });
 
       card.addEventListener('click', async () => {
-        const originalContent = card.innerHTML;
         card.innerHTML = '<div class="spinner-small" style="width:16px;height:16px;border:2px solid rgba(255,255,255,0.2);border-top-color:currentColor;border-radius:50%;animation:excaligif-spin 0.6s linear infinite;margin-bottom:6px;"></div><span class="icon-name">Fetching...</span>';
         
         try {
@@ -3503,7 +3728,7 @@
           console.error("[Excali Up] Copy failed:", err);
           showToast("Copy failed");
         } finally {
-          card.innerHTML = originalContent;
+          renderIconsGrid();
         }
       });
 
@@ -3514,7 +3739,9 @@
 
     const footer = document.getElementById('excaligif-icons-footer');
     if (footer) {
-      const context = activePrefix && iconCollections[activePrefix]
+      const context = iconView === 'favorites'
+        ? 'Favorites'
+        : activePrefix && iconCollections[activePrefix]
         ? iconCollections[activePrefix].name
         : `${getMatchingCollections().length} packs`;
       const capped = searchQuery && visibleIcons.length === 999 ? 'First ' : '';
@@ -3706,9 +3933,10 @@
   function cleanSvg(svgText) {
     svgText = svgText.replace(/<\?xml.*?\?>/gi, '');
     svgText = svgText.replace(/<!DOCTYPE.*?>/gi, '');
-    return svgText
+    const cleanedSvg = svgText
       .replace(/fill="#(000000|000|212121)"/gi, 'fill="currentColor"')
       .replace(/stroke="#(000000|000|212121)"/gi, 'stroke="currentColor"');
+    return Core.sizeSvgForCanvas(cleanedSvg, 96);
   }
 
   function showToast(message) {

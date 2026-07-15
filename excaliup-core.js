@@ -24,6 +24,7 @@
 
   const DEFAULT_SETTINGS = Object.freeze({
     gifsEnabled: true,
+    animatedSvgsEnabled: true,
     flowEnabled: true,
     gifSpeed: 1
   });
@@ -52,6 +53,9 @@
 
     return {
       gifsEnabled: typeof source.gifsEnabled === 'boolean' ? source.gifsEnabled : !!base.gifsEnabled,
+      animatedSvgsEnabled: typeof source.animatedSvgsEnabled === 'boolean'
+        ? source.animatedSvgsEnabled
+        : base.animatedSvgsEnabled !== false,
       flowEnabled: typeof source.flowEnabled === 'boolean' ? source.flowEnabled : !!base.flowEnabled,
       gifSpeed: clamp(source.gifSpeed, 0.5, 2, finiteNumber(base.gifSpeed, 1))
     };
@@ -304,6 +308,70 @@
     );
   }
 
+  function sizeSvgForCanvas(markup, maxSize = 96) {
+    if (typeof markup !== 'string') return markup;
+    const targetSize = Math.max(16, Math.round(finiteNumber(maxSize, 96)));
+    return markup.replace(/<svg\b([^>]*)>/i, (svgTag, attributes) => {
+      const viewBoxMatch = attributes.match(/\bviewBox\s*=\s*["']([^"']+)["']/i);
+      let width = targetSize;
+      let height = targetSize;
+
+      if (viewBoxMatch) {
+        const values = viewBoxMatch[1].trim().split(/[\s,]+/).map(Number);
+        const viewBoxWidth = values[2];
+        const viewBoxHeight = values[3];
+        if (values.length === 4 && viewBoxWidth > 0 && viewBoxHeight > 0) {
+          if (viewBoxWidth >= viewBoxHeight) {
+            height = Math.max(1, Math.round(targetSize * viewBoxHeight / viewBoxWidth));
+          } else {
+            width = Math.max(1, Math.round(targetSize * viewBoxWidth / viewBoxHeight));
+          }
+        }
+      }
+
+      const resizedAttributes = attributes.replace(
+        /\s+(?:width|height)\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi,
+        ''
+      );
+      return `<svg${resizedAttributes} width="${width}" height="${height}">`;
+    });
+  }
+
+  function getSvgIntrinsicSize(markup, fallbackSize = 96) {
+    const fallback = Math.max(16, Math.round(finiteNumber(fallbackSize, 96)));
+    if (typeof markup !== 'string') return { width: fallback, height: fallback };
+    const rootMatch = markup.match(/<svg\b([^>]*)>/i);
+    if (!rootMatch) return { width: fallback, height: fallback };
+    const attributes = rootMatch[1];
+    const readLength = (name) => {
+      const match = attributes.match(new RegExp(`\\b${name}\\s*=\\s*["']([0-9.]+)(?:px)?["']`, 'i'));
+      const value = match ? Number(match[1]) : NaN;
+      return Number.isFinite(value) && value > 0 ? value : null;
+    };
+    let width = readLength('width');
+    let height = readLength('height');
+    const viewBoxMatch = attributes.match(/\bviewBox\s*=\s*["']([^"']+)["']/i);
+    const values = viewBoxMatch ? viewBoxMatch[1].trim().split(/[\s,]+/).map(Number) : [];
+    const viewBoxWidth = values.length === 4 && values[2] > 0 ? values[2] : null;
+    const viewBoxHeight = values.length === 4 && values[3] > 0 ? values[3] : null;
+
+    if (!width && height && viewBoxWidth && viewBoxHeight) width = height * viewBoxWidth / viewBoxHeight;
+    if (!height && width && viewBoxWidth && viewBoxHeight) height = width * viewBoxHeight / viewBoxWidth;
+    if (!width || !height) {
+      width = fallback;
+      height = fallback;
+      if (viewBoxWidth && viewBoxHeight) {
+        if (viewBoxWidth >= viewBoxHeight) {
+          height = Math.max(1, fallback * viewBoxHeight / viewBoxWidth);
+        } else {
+          width = Math.max(1, fallback * viewBoxWidth / viewBoxHeight);
+        }
+      }
+    }
+
+    return { width: Math.round(width), height: Math.round(height) };
+  }
+
   class AdaptiveFrameBudget {
     constructor(options = {}) {
       this.windowDuration = options.windowDuration || 1000;
@@ -384,6 +452,8 @@
     intersectsBounds,
     buildGifRefreshElements,
     isAnimatedSvgMarkup,
+    sizeSvgForCanvas,
+    getSvgIntrinsicSize,
     AdaptiveFrameBudget
   });
 });

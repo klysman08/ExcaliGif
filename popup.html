@@ -14,7 +14,7 @@
         <span class="logo-bold">Excali</span><span class="logo-light">Up</span>
         <span class="pulse-dot"></span>
       </div>
-      <div class="version" id="versionLabel">v2.0.0</div>
+      <div class="version" id="versionLabel">v4.0.0</div>
     </header>
 
     <!-- Connection Status Banner -->
@@ -27,8 +27,8 @@
     <div class="card">
       <div class="card-row">
         <div class="card-label-group">
-          <div class="card-title">Media Animations</div>
-          <div class="card-desc">Enable playback for canvas GIFs and animated SVGs</div>
+          <div class="card-title">GIF Playback</div>
+          <div class="card-desc">Enable animated GIF playback on the canvas</div>
         </div>
         <div class="toggle-container">
           <label class="switch">
@@ -46,6 +46,22 @@
             <option value="1.5">1.5×</option>
             <option value="2">2×</option>
           </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Animated SVG Card -->
+    <div class="card">
+      <div class="card-row">
+        <div class="card-label-group">
+          <div class="card-title">Animate SVGs</div>
+          <div class="card-desc">Loop animated Iconify SVGs on the canvas</div>
+        </div>
+        <div class="toggle-container">
+          <label class="switch">
+            <input type="checkbox" id="animatedSvgToggle" checked disabled>
+            <span class="slider"></span>
+          </label>
         </div>
       </div>
     </div>
@@ -87,12 +103,27 @@
     <!-- Tips -->
     <div class="tips-box">
       <div class="tips-title">💡 How to use</div>
-      <p class="tips-text">Drag a <b>.gif</b> onto Excalidraw for auto-playback. Select an <b>arrow</b> or <b>line</b> to reveal the animation toolbar — pick a style to bring your diagrams to life!</p>
+      <ul class="tips-list">
+        <li>Press <b>B</b> to open the Iconify Library.</li>
+        <li>Click or drag icons onto the canvas, and use the star to save favorites.</li>
+        <li>Enable <b>Animate SVGs</b> for looping animated icons.</li>
+        <li>Drop a <b>.gif</b>, or select a line or arrow to add motion.</li>
+      </ul>
     </div>
+
+    <a
+      class="coffee-button"
+      href="https://donate.stripe.com/4gMdRa7XW6dt8Ph9KX9Ve01"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      <span aria-hidden="true">☕</span>
+      <span>Buy me a coffee</span>
+    </a>
 
     <!-- Footer -->
     <footer class="footer">
-      <span>Antigravity pair-programming</span>
+      <a href="https://github.com/klysman08" target="_blank" rel="noopener noreferrer">github.com/klysman08</a>
     </footer>
   </div>
   <script src="popup.js"></script>
